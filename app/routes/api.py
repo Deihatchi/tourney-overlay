@@ -58,6 +58,7 @@ async def get_games() -> dict:
                 "tertiary": theme["tertiary"],
             },
             "animation": theme["anim"],
+            "icon": theme.get("icon", ""),
         })
     return {"games": games}
 

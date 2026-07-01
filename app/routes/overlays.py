@@ -48,6 +48,8 @@ async def overlay_score(
     lang: str = Query(default="fr", description="Language"),
 ):
     theme = _resolve_theme(game, primary, secondary, tertiary, animation)
+    # Winner text based on language
+    winner_text = "VAINQUEUR" if lang == "fr" else "WINNER"
     tmpl = templates_env.get_template("overlay_score.html")
     return tmpl.render(
         request=request,
@@ -60,6 +62,7 @@ async def overlay_score(
         resolution=res,
         logo_url=logo,
         lang=lang,
+        winner_text=winner_text,
     )
 
 

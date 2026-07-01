@@ -224,7 +224,7 @@ body {
     transform: translateY(1px);
 }
 
-/* ---- WINNER GLOW ---- */
+/* ---- WINNER BADGE ---- */
 .p-side.winner .p-name {
     color: var(--tertiary) !important;
     text-shadow: 0 0 30px color-mix(in srgb, var(--tertiary) 50%, transparent),
@@ -236,24 +236,35 @@ body {
     text-shadow: 0 0 30px color-mix(in srgb, var(--tertiary) 50%, transparent) !important;
 }
 
-.p-side.winner .crown {
-    display: block;
+.p-side.winner .winner-badge {
+    display: flex;
 }
 
-.crown {
+.winner-badge {
     display: none;
     position: absolute;
     top: 8px;
-    font-size: 22px;
-    animation: crownBounce 2s ease-in-out infinite;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--tertiary);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 2px solid var(--tertiary);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--tertiary) 50%, transparent);
+    animation: winnerPulse 2s ease-in-out infinite;
+    white-space: nowrap;
+    z-index: 10;
 }
 
-.p-side.p1 .crown { right: 40px; }
-.p-side.p2 .crown { left: 40px; }
+.p-side.p1 .winner-badge { right: 40px; }
+.p-side.p2 .winner-badge { left: 40px; }
 
-@keyframes crownBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
+@keyframes winnerPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px color-mix(in srgb, var(--tertiary) 50%, transparent); }
+    50% { transform: scale(1.05); box-shadow: 0 0 30px color-mix(in srgb, var(--tertiary) 80%, transparent); }
 }
 
 /* ---- BOTTOM INFO BAR ---- */
@@ -417,7 +428,7 @@ body {
     <div class="score-inner">
         <!-- Player 1 -->
         <div class="p-side p1" id="p1Side">
-            <div class="crown">👑</div>
+            <div class="winner-badge">{{ winner_text or "WINNER" }}</div>
             <div class="p-name" id="p1Name">{{ player1_name or "JOUEUR 1" }}</div>
             <div class="p-score-row">
                 <div id="p1Avatar" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--primary);overflow:hidden;flex-shrink:0;display:none"></div>
@@ -432,7 +443,7 @@ body {
 
         <!-- Player 2 -->
         <div class="p-side p2" id="p2Side">
-            <div class="crown">👑</div>
+            <div class="winner-badge">{{ winner_text or "WINNER" }}</div>
             <div class="p-name" id="p2Name">{{ player2_name or "JOUEUR 2" }}</div>
             <div class="p-score-row" style="flex-direction:row-reverse;">
                 <div class="p-score" id="p2Score">{{ player2_score or "0" }}</div>

@@ -17,6 +17,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "slide",
         "emoji": "🥊",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/1364780/header.jpg",
     },
     "sf5": {
         "name": "Street Fighter V",
@@ -26,6 +27,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "slide",
         "emoji": "🥊",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/310950/header.jpg",
     },
     "sf4": {
         "name": "Street Fighter IV",
@@ -35,6 +37,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "slide",
         "emoji": "🥊",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/4000/header.jpg",
     },
     "sf3": {
         "name": "Street Fighter III",
@@ -44,6 +47,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "slide",
         "emoji": "🥊",
         "cat": "Fighting",
+        "icon": "https://www.fightersgeneration.com/nf6/char2/sf33s-logo.gif",
     },
     "sf2": {
         "name": "Street Fighter II",
@@ -53,6 +57,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "slide",
         "emoji": "🥊",
         "cat": "Fighting",
+        "icon": "https://www.fightersgeneration.com/nf6/char2/sf2-logo.gif",
     },
     "tekken8": {
         "name": "Tekken 8",
@@ -62,6 +67,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "punch",
         "emoji": "👊",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/2338770/header.jpg",
     },
     "tekken7": {
         "name": "Tekken 7",
@@ -71,6 +77,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "punch",
         "emoji": "👊",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/389730/header.jpg",
     },
     "ggst": {
         "name": "Guilty Gear Strive",
@@ -80,6 +87,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "swing",
         "emoji": "⚔️",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/1384160/header.jpg",
     },
     "bbcf": {
         "name": "BlazBlue Centralfiction",
@@ -89,6 +97,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "swing",
         "emoji": "⚔️",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/586140/header.jpg",
     },
     "dbfz": {
         "name": "Dragon Ball FighterZ",
@@ -98,6 +107,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "blast",
         "emoji": "💥",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/678950/header.jpg",
     },
     "mk1": {
         "name": "Mortal Kombat 1",
@@ -107,6 +117,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "fatality",
         "emoji": "💀",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/2375420/header.jpg",
     },
     "unist": {
         "name": "Under Night In-Birth",
@@ -116,6 +127,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "slide",
         "emoji": "🌙",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/1257900/header.jpg",
     },
     "smashu": {
         "name": "Super Smash Bros Ultimate",
@@ -125,6 +137,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "bounce",
         "emoji": "🎮",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/1384160/header.jpg",
     },
     "smashm": {
         "name": "Super Smash Bros Melee",
@@ -134,6 +147,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "bounce",
         "emoji": "🎮",
         "cat": "Fighting",
+        "icon": "https://www.ssbwiki.com/images/thumb/3/3d/SSBM_logo.png/800px-SSBM_logo.png",
     },
     "kof15": {
         "name": "King of Fighters XV",
@@ -143,6 +157,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "slide",
         "emoji": "🔥",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/1520060/header.jpg",
     },
     "gbfvr": {
         "name": "Granblue Fantasy Versus Rising",
@@ -152,6 +167,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "swing",
         "emoji": "⚔️",
         "cat": "Fighting",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/2358570/header.jpg",
     },
     # ── FPS ──────────────────────────────────────────────────────────────────
     "valo": {
@@ -162,6 +178,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "fade",
         "emoji": "🎯",
         "cat": "FPS",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/1526830/header.jpg",
     },
     "cs2": {
         "name": "Counter-Strike 2",
@@ -171,6 +188,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "fade",
         "emoji": "🔫",
         "cat": "FPS",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg",
     },
     "ow2": {
         "name": "Overwatch 2",
@@ -180,6 +198,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "fade",
         "emoji": "🦸",
         "cat": "FPS",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/2357570/header.jpg",
     },
     # ── MOBA ─────────────────────────────────────────────────────────────────
     "lol": {
@@ -190,6 +209,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "glow",
         "emoji": "⚔️",
         "cat": "MOBA",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/427520/header.jpg",
     },
     "dota2": {
         "name": "Dota 2",
@@ -199,6 +219,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "glow",
         "emoji": "🛡️",
         "cat": "MOBA",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/570/header.jpg",
     },
     # ── Sports ───────────────────────────────────────────────────────────────
     "rl": {
@@ -209,6 +230,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "spin",
         "emoji": "🚗",
         "cat": "Sports",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/252950/header.jpg",
     },
     "fifa": {
         "name": "EA Sports FC",
@@ -218,6 +240,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "spin",
         "emoji": "⚽",
         "cat": "Sports",
+        "icon": "https://cdn.cloudflare.steamstatic.com/steam/apps/1811260/header.jpg",
     },
     # ── Custom ───────────────────────────────────────────────────────────────
     "custom": {
@@ -228,6 +251,7 @@ GAME_THEMES: dict[str, dict] = {
         "anim": "slide",
         "emoji": "🎨",
         "cat": "Custom",
+        "icon": "https://challonge.com/assets/logo-500x500.png",
     },
 }
 

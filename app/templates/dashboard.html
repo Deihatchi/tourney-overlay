@@ -102,7 +102,10 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 </select>
 <span style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:600">🏆 Challonge</span></div>
 <div class="card"><div class="card-title" id="lbl_game">🎮 Jeu</div>
-<select id="gameSel"><option>Chargement...</option></select></div>
+<div style="display:flex;align-items:center;gap:10px">
+<select id="gameSel" style="flex:1"><option>Chargement...</option></select>
+<img id="gameIcon" style="width:32px;height:32px;border-radius:6px;object-fit:cover;display:none" alt="Game icon">
+</div></div>
 </div>
 
 <!-- ROW 2: Logo -->
@@ -310,6 +313,7 @@ async function loadGames() {
                 var o = document.createElement('option');
                 o.value = gm.id;
                 o.textContent = gm.emoji + ' ' + gm.name;
+                o.dataset.icon = gm.icon || '';
                 gr.appendChild(o);
             });
             sel.appendChild(gr);
@@ -334,6 +338,7 @@ document.getElementById('gameSel').onchange = function() {
     applyGameTheme(GAMES[curGame] || {});
     localStorage.setItem('sf_game', curGame);
     updateUrls();
+    updateGameIcon();
 };
 
 function applyGameTheme(g) {
@@ -346,6 +351,16 @@ function applyGameTheme(g) {
     var as = document.getElementById('animSel');
     if (as.querySelector('option[value="' + anim + '"]')) as.value = anim;
     updateSwatches();
+    updateGameIcon();
+}
+
+function updateGameIcon() {
+    var g = GAMES[curGame];
+    if (!g || !g.icon) return;
+    var iconEl = document.getElementById('gameIcon');
+    if (!iconEl) return;
+    iconEl.src = g.icon;
+    iconEl.style.display = '';
 }
 
 function setColorInputs(c1, c2, c3) {

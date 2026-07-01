@@ -8,7 +8,7 @@ curl -s -X DELETE "${ENDPOINT}/api/endpoints/2/docker/containers/tourney-overlay
   -H "x-api-key: ${PT_TOKEN}" || true
 echo ""
 echo "🚀 Étape 2: Rebuild de l'image..."
-cd /opt/data/sf-overlay2
+cd /opt/data/tourney-overlay
 tar czf /tmp/tourney-overlay.tar.gz \
   --exclude=.venv --exclude=__pycache__ --exclude='*.pyc' --exclude='egg-info' \
   Dockerfile pyproject.toml app/ 2>/dev/null
