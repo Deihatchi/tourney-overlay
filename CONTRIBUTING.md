@@ -1,11 +1,11 @@
-# Contributing to SF-Overlay2
+# Contributing to Tourney-Overlay
 
-Thank you for your interest in contributing! 
+Thank you for your interest in contributing!
 
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/sf-overlay2.git`
+2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/tourney-overlay.git`
 3. Create a feature branch: `git checkout -b feature/my-feature`
 4. Make your changes
 5. Test with Docker: `docker compose up --build`
@@ -15,7 +15,7 @@ Thank you for your interest in contributing!
 
 ```bash
 # Install dependencies
-cd sf-overlay2
+cd tourney-overlay
 uv sync --dev  # or pip install -e ".[dev]"
 
 # Run locally (requires .env with API key)
@@ -47,7 +47,7 @@ Use GitHub Issues with:
 - Clear title
 - Steps to reproduce
 - Expected vs actual behavior
-- Docker logs (`docker logs sf-overlay2`)
+- Docker logs (`docker logs tourney-overlay`)
 - Screenshots if UI-related
 
 ## Security
@@ -57,4 +57,4 @@ Use GitHub Issues with:
 
 ## License
 
-By contributing, you agree your contributions will be licensed under MIT.
+By contributing, you agree your contributions will be licensed under **PolyForm Noncommercial License 1.0.0**.

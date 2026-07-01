@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to SF-Overlay2 will be documented in this format.
+All notable changes to Tourney-Overlay will be documented in this format.
 
 ## [2.0.0] - 2025-06-30
 
@@ -21,7 +21,7 @@ All notable changes to SF-Overlay2 will be documented in this format.
 - docker-compose.yml for easy deployment
 - Portainer deploy script
 - GitHub Actions workflow for GHCR image builds
-- MIT License
+- **PolyForm Noncommercial License 1.0.0**
 
 ### Fixed
 - Frontend JS handling of `{tournaments: [...]}` API wrapper

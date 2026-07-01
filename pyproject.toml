@@ -1,7 +1,7 @@
 [project]
-name = "sf-overlay2"
+name = "tourney-overlay"
 version = "2.0.0"
-description = "Tournament overlay system for Street Fighter with Challonge integration"
+description = "Tournament overlay system for OBS with Challonge integration"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115.0",

@@ -1,4 +1,4 @@
-# SF-Overlay2 — Tournament Overlay for OBS
+# Tourney-Overlay — Tournament Overlay for OBS
 
 > **Animated tournament overlays** synced with **Challonge** brackets. Built for fighting game streams (Street Fighter, Tekken, Guilty Gear, etc.).
 
@@ -29,8 +29,8 @@
 
 **Option A: Docker Compose (recommended)**
 ```bash
-git clone https://github.com/<your-username>/sf-overlay2.git
-cd sf-overlay2
+git clone https://github.com/Deihatchi/tourney-overlay.git
+cd tourney-overlay
 
 # Configure
 cp .env.example .env
@@ -43,13 +43,13 @@ docker compose up -d --build
 
 **Option B: Docker directly**
 ```bash
-docker build -t sf-overlay2 .
+docker build -t tourney-overlay .
 docker run -d \
-  --name sf-overlay2 \
+  --name tourney-overlay \
   -p 8002:8000 \
   -e SF_CHALLENGE_API_KEY=your_key_here \
   -e SF_CHALLENGE_USERNAME=your_org \
-  sf-overlay2
+  tourney-overlay
 ```
 
 ### 3. Open Dashboard
@@ -67,7 +67,7 @@ docker run -d \
 ## 📁 Project Structure
 
 ```
-sf-overlay2/
+tourney-overlay/
 ├── docker-compose.yml      # Compose config
 ├── Dockerfile              # Multi-stage build
 ├── pyproject.toml          # Python deps
@@ -185,16 +185,15 @@ What it does:
 
 ## 🤝 Contributing
 
-1. Fork → create feature branch
-2. Add tests if applicable
-3. `docker compose up --build` to verify
-4. Open PR
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ---
 
 ## 📄 License
 
-MIT License — free to use, modify, distribute.
+**PolyForm Noncommercial License 1.0.0** — see [LICENSE](LICENSE) for details.
+
+Noncommercial use only. For commercial licensing, contact the maintainers.
 
 ---
 

@@ -1,16 +1,16 @@
 version: '3.8'
 
 services:
-  sf-overlay2:
+  tourney-overlay:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: sf-overlay2
+    container_name: tourney-overlay
     ports:
       - "8002:8000"
     environment:
-      - SF_CHALLONGE_API_KEY=${CHALLONGE_API_KEY:-}
-      - SF_CHALLONGE_USERNAME=${CHALLONGE_USERNAME:-}
+      - SF_CHALLENGE_API_KEY=${CHALLENGE_API_KEY:-}
+      - SF_CHALLENGE_USERNAME=${CHALLENGE_USERNAME:-}
       - SF_HOST=0.0.0.0
       - SF_PORT=8000
     restart: unless-stopped
@@ -21,8 +21,8 @@ services:
       start_period: 10s
       retries: 3
     networks:
-      - sf-overlay-network
+      - tourney-overlay-network
 
 networks:
-  sf-overlay-network:
+  tourney-overlay-network:
     driver: bridge
