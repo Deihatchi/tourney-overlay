@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  sf-overlay2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sf-overlay2
+    ports:
+      - "8002:8000"
+    environment:
+      - SF_CHALLONGE_API_KEY=${CHALLONGE_API_KEY:-}
+      - SF_CHALLENGE_USERNAME=${CHALLENGE_USERNAME:-}
+      - SF_HOST=0.0.0.0
+      - SF_PORT=8000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/status')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    networks:
+      - sf-overlay-network
+
+networks:
+  sf-overlay-network:
+    driver: bridge

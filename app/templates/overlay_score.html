@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SF Overlay — Score</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary: {{ primary|default("#ff4655") }};
+    --secondary: {{ secondary|default("#00d4ff") }};
+    --tertiary: {{ tertiary|default("#ffd700") }};
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: transparent !important;
+    overflow: hidden;
+    font-family: {{ font_family|default("'Rajdhani', sans-serif") }};
+    width: 1920px;
+    height: 1080px;
+}
+
+/* ====== SCORE BAR ====== */
+.score-wrapper {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 960px;
+    height: 148px;
+    animation: {{ animation|default("slide") }} 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ---- MAIN BACKGROUND ---- */
+.score-bg {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: rgba(10, 10, 20, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    overflow: hidden;
+}
+
+/* ---- AMBIENT GLOW ---- */
+.score-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 140%;
+    height: 200%;
+    background:
+        radial-gradient(ellipse at 30% 50%, color-mix(in srgb, var(--primary) 8%, transparent) 0%, transparent 70%),
+        radial-gradient(ellipse at 70% 50%, color-mix(in srgb, var(--secondary) 8%, transparent) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* ---- SIDE GRADIENTS ---- */
+.score-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--primary) 4%, transparent) 0%,
+        transparent 20%,
+        transparent 80%,
+        color-mix(in srgb, var(--secondary) 4%, transparent) 100%
+    );
+    pointer-events: none;
+}
+
+/* ---- TOP ACCENT BAR ---- */
+.accent-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--tertiary));
+    background-size: 200% 100%;
+    animation: barShimmer 3s ease infinite;
+}
+
+@keyframes barShimmer {
+    0%, 100% { background-position: 0% 0%; }
+    50% { background-position: 100% 0%; }
+}
+
+/* ---- INNER LAYOUT ---- */
+.score-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0;
+    z-index: 1;
+}
+
+/* ---- PLAYER SIDES ---- */
+.p-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 30px;
+    position: relative;
+    height: 100%;
+}
+
+.p-side.p1 {
+    align-items: flex-start;
+    padding-right: 50px;
+}
+
+.p-side.p2 {
+    align-items: flex-end;
+    padding-left: 50px;
+}
+
+/* ---- PLAYER NAME ---- */
+.p-name {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 26px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 0 30px color-mix(in srgb, var(--primary) 40%, transparent);
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.p-side.p2 .p-name {
+    text-shadow: 0 0 30px color-mix(in srgb, var(--secondary) 40%, transparent);
+}
+
+/* ---- SCORE ROW ---- */
+.p-score-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 2px;
+}
+
+.p-score {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 52px;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 0 20px color-mix(in srgb, var(--primary) 50%, transparent);
+    min-width: 48px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.p-side.p1 .p-score { color: var(--primary); }
+.p-side.p2 .p-score { color: var(--secondary); }
+
+.p-score.flash {
+    animation: scorePop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scorePop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.25); filter: brightness(1.5); }
+    100% { transform: scale(1); }
+}
+
+.p-score-divider {
+    font-size: 22px;
+    color: rgba(255,255,255,0.12);
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+}
+
+.p-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 2px;
+    font-weight: 500;
+    margin-top: 1px;
+}
+
+/* ---- VS BADGE ---- */
+.vs-badge {
+    width: 72px;
+    min-width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 50%;
+    z-index: 3;
+    position: relative;
+    box-shadow:
+        0 0 30px color-mix(in srgb, var(--primary) 30%, transparent),
+        0 0 60px color-mix(in srgb, var(--secondary) 15%, transparent);
+    animation: vsPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes vsPulse {
+    0%, 100% { box-shadow: 0 0 30px color-mix(in srgb, var(--primary) 30%, transparent), 0 0 60px color-mix(in srgb, var(--secondary) 15%, transparent); }
+    50% { box-shadow: 0 0 40px color-mix(in srgb, var(--primary) 40%, transparent), 0 0 80px color-mix(in srgb, var(--secondary) 25%, transparent); }
+}
+
+.vs-badge span {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+    transform: translateY(1px);
+}
+
+/* ---- WINNER GLOW ---- */
+.p-side.winner .p-name {
+    color: var(--tertiary) !important;
+    text-shadow: 0 0 30px color-mix(in srgb, var(--tertiary) 50%, transparent),
+                 0 0 60px color-mix(in srgb, var(--tertiary) 20%, transparent) !important;
+}
+
+.p-side.winner .p-score {
+    color: var(--tertiary) !important;
+    text-shadow: 0 0 30px color-mix(in srgb, var(--tertiary) 50%, transparent) !important;
+}
+
+.p-side.winner .crown {
+    display: block;
+}
+
+.crown {
+    display: none;
+    position: absolute;
+    top: 8px;
+    font-size: 22px;
+    animation: crownBounce 2s ease-in-out infinite;
+}
+
+.p-side.p1 .crown { right: 40px; }
+.p-side.p2 .crown { left: 40px; }
+
+@keyframes crownBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+/* ---- BOTTOM INFO BAR ---- */
+.info-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    z-index: 2;
+}
+
+.info-bar .round {
+    color: var(--primary);
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+}
+
+/* ====== ANIMATION KEYFRAMES ====== */
+
+@keyframes slide {
+    from { opacity: 0; transform: translateX(-50%) translateY(80px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes zoom {
+    from { opacity: 0; transform: translateX(-50%) scale(0.6); }
+    to   { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+@keyframes glitch {
+    0%  { opacity: 0; transform: translateX(-50%) translateY(40px) skewX(0deg); }
+    20% { opacity: 0.8; transform: translateX(-50%) translateY(0) skewX(-8deg); clip-path: inset(60% 0 0 0); }
+    25% { opacity: 0.9; transform: translateX(-50%) translateY(0) skewX(8deg); clip-path: inset(30% 0 30% 0); }
+    30% { opacity: 1; transform: translateX(-50%) translateY(0) skewX(0deg); clip-path: inset(0 0 0 0); }
+    35% { clip-path: inset(0 0 60% 0); }
+    40% { clip-path: inset(0 0 0 0); }
+    100%{ opacity: 1; transform: translateX(-50%) translateY(0) skewX(0deg); }
+}
+
+@keyframes fire {
+    0%  { opacity: 0; transform: translateX(-50%) translateY(100px) scale(0.9); filter: blur(4px) brightness(0.5); }
+    30% { opacity: 0.7; filter: blur(0) brightness(1.3); }
+    60% { opacity: 1; filter: brightness(1); }
+    100%{ opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+@keyframes pulse {
+    0%  { opacity: 0; transform: translateX(-50%) scale(0.95); }
+    20% { opacity: 1; transform: translateX(-50%) scale(1.02); }
+    40% { transform: translateX(-50%) scale(0.98); }
+    60% { transform: translateX(-50%) scale(1.01); }
+    100%{ opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+@keyframes neon_sweep {
+    0%  { opacity: 0; transform: translateX(-50%); filter: brightness(3) hue-rotate(-30deg); }
+    30% { opacity: 0.5; filter: brightness(1.5) hue-rotate(0deg); }
+    70% { opacity: 1; filter: brightness(1.2); }
+    100%{ opacity: 1; transform: translateX(-50%); filter: brightness(1) hue-rotate(0deg); }
+}
+
+@keyframes matrix {
+    0%  { opacity: 0; transform: translateX(-50%) translateY(-40px); letter-spacing: 40px; }
+    30% { opacity: 0.3; letter-spacing: 10px; }
+    60% { opacity: 1; letter-spacing: 2px; }
+    100%{ opacity: 1; transform: translateX(-50%) translateY(0); letter-spacing: normal; }
+}
+
+@keyframes punch {
+    0%  { opacity: 0; transform: translateX(-50%) scale(1.3) rotate(-2deg); }
+    20% { opacity: 0.6; transform: translateX(-50%) scale(0.9) rotate(1deg); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+    100%{ opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
+}
+
+@keyframes swing {
+    0%  { opacity: 0; transform: translateX(-50%) rotate(-15deg) scale(0.7); }
+    30% { opacity: 0.7; transform: translateX(-50%) rotate(5deg) scale(1.05); }
+    60% { opacity: 1; transform: translateX(-50%) rotate(-2deg) scale(0.98); }
+    100%{ opacity: 1; transform: translateX(-50%) rotate(0deg) scale(1); }
+}
+
+@keyframes blast {
+    0%  { opacity: 0; transform: translateX(-50%) scale(0.3); filter: brightness(3); }
+    30% { opacity: 0.8; transform: translateX(-50%) scale(1.15); filter: brightness(1.5); }
+    60% { transform: translateX(-50%) scale(0.95); filter: brightness(1); }
+    100%{ opacity: 1; transform: translateX(-50%) scale(1); filter: brightness(1); }
+}
+
+@keyframes fatality {
+    0%  { opacity: 0; transform: translateX(-50%) translateY(-60px); filter: saturate(0) brightness(2); }
+    25% { opacity: 0.5; filter: saturate(2) brightness(1.5); }
+    50% { opacity: 1; transform: translateX(-50%) translateY(10px); filter: saturate(1.5); }
+    100%{ opacity: 1; transform: translateX(-50%) translateY(0); filter: saturate(1) brightness(1); }
+}
+
+@keyframes bounce {
+    0%  { opacity: 0; transform: translateX(-50%) translateY(-120px); }
+    50% { opacity: 1; transform: translateX(-50%) translateY(15px); }
+    70% { transform: translateX(-50%) translateY(-8px); }
+    85% { transform: translateX(-50%) translateY(3px); }
+    100%{ opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes glow {
+    0%  { opacity: 0; transform: translateX(-50%); filter: brightness(0.3) drop-shadow(0 0 0 transparent); }
+    40% { opacity: 0.7; filter: brightness(1.5) drop-shadow(0 0 20px var(--primary)); }
+    100%{ opacity: 1; transform: translateX(-50%); filter: brightness(1) drop-shadow(0 0 8px color-mix(in srgb, var(--primary) 30%, transparent)); }
+}
+
+@keyframes spin {
+    0%  { opacity: 0; transform: translateX(-50%) rotateY(90deg); }
+    60% { opacity: 1; transform: translateX(-50%) rotateY(-10deg); }
+    80% { transform: translateX(-50%) rotateY(5deg); }
+    100%{ opacity: 1; transform: translateX(-50%) rotateY(0deg); }
+}
+
+/* ---- CORNER TAG ---- */
+.corner-tag {
+    position: absolute;
+    top: 8px;
+    left: 16px;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.12);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    z-index: 5;
+    pointer-events: none;
+}
+</style>
+</head>
+<body>
+<div class="corner-tag">SF OVERLAY</div>
+
+{% if logo_url %}
+<div style="position:absolute;top:20px;left:50%;transform:translateX(-50%);z-index:5;pointer-events:none">
+<img src="{{ logo_url }}" style="max-height:50px;opacity:0.8">
+</div>
+{% endif %}
+
+<div class="score-wrapper" id="scoreOverlay">
+    <div class="score-bg">
+        <div class="accent-bar"></div>
+    </div>
+    <div class="score-inner">
+        <!-- Player 1 -->
+        <div class="p-side p1" id="p1Side">
+            <div class="crown">👑</div>
+            <div class="p-name" id="p1Name">{{ player1_name or "JOUEUR 1" }}</div>
+            <div class="p-score-row">
+                <div id="p1Avatar" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--primary);overflow:hidden;flex-shrink:0;display:none"></div>
+                <div class="p-score" id="p1Score">{{ player1_score or "0" }}</div>
+                <div class="p-score-divider">—</div>
+                <div class="p-sub" id="p1Info">---</div>
+            </div>
+        </div>
+
+        <!-- VS -->
+        <div class="vs-badge"><span>VS</span></div>
+
+        <!-- Player 2 -->
+        <div class="p-side p2" id="p2Side">
+            <div class="crown">👑</div>
+            <div class="p-name" id="p2Name">{{ player2_name or "JOUEUR 2" }}</div>
+            <div class="p-score-row" style="flex-direction:row-reverse;">
+                <div class="p-score" id="p2Score">{{ player2_score or "0" }}</div>
+                <div class="p-score-divider">—</div>
+                <div class="p-sub" id="p2Info">---</div>
+                <div id="p2Avatar" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--secondary);overflow:hidden;flex-shrink:0;display:none"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="info-bar">
+    <span class="round" id="roundLabel">ROUND 1</span>
+    <span id="tournamentLabel">{{ game or "" }}</span>
+</div>
+
+<script>
+(function() {
+    var wsUrl = 'ws://' + window.location.host + '/ws/overlay/{{ match_id|default("0") }}';
+    var socket = null;
+    var matchId = {{ match_id|default("0") }};
+    var tournamentId = {{ tournament_id|default("0") }};
+    var lang = '{{ lang|default("fr") }}';
+
+    var i18n = {
+        fr: { round: 'ROUND', waiting: 'EN ATTENTE...', p1: 'JOUEUR 1', p2: 'JOUEUR 2' },
+        en: { round: 'ROUND', waiting: 'WAITING...', p1: 'PLAYER 1', p2: 'PLAYER 2' }
+    };
+    var _t = i18n[lang] || i18n.fr;
+
+    function connectWs() {
+        socket = new WebSocket(wsUrl);
+        socket.onopen = function() { console.log('WS overlay connecté'); };
+        socket.onmessage = function(e) {
+            try {
+                var data = JSON.parse(e.data);
+                if (data.match) updateScore(data.match);
+            } catch(err) {}
+        };
+        socket.onclose = function() {
+            setTimeout(function() { connectWs(); }, 3000);
+        };
+    }
+
+    connectWs();
+
+    setInterval(function() {
+        if (socket && socket.readyState === 1) socket.send('ping');
+    }, 30000);
+
+    function flash(id, val) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (el.textContent !== String(val)) {
+            el.textContent = val;
+            el.classList.remove('flash');
+            void el.offsetWidth;
+            el.classList.add('flash');
+        }
+    }
+
+    function setAvatar(avatarId, p) {
+        var el = document.getElementById(avatarId);
+        if (!el) return;
+        if (p && p.avatar_url) {
+            el.innerHTML = '<img src="' + p.avatar_url + '" style="width:100%;height:100%;object-fit:cover;">';
+            el.style.display = '';
+        } else {
+            el.style.display = 'none';
+        }
+    }
+
+    function updateScore(m) {
+        if (m.player1) {
+            document.getElementById('p1Name').textContent = m.player1.name || _t.p1;
+            flash('p1Score', m.player1.score);
+            document.getElementById('p1Info').textContent = m.player1.character || '---';
+            document.getElementById('p1Side').classList.toggle('winner', !!m.player1.is_winner);
+            setAvatar('p1Avatar', m.player1);
+        }
+        if (m.player2) {
+            document.getElementById('p2Name').textContent = m.player2.name || _t.p2;
+            flash('p2Score', m.player2.score);
+            document.getElementById('p2Info').textContent = m.player2.character || '---';
+            document.getElementById('p2Side').classList.toggle('winner', !!m.player2.is_winner);
+            setAvatar('p2Avatar', m.player2);
+        }
+        document.getElementById('roundLabel').textContent = _t.round + ' ' + (m.round || 1);
+        if (m.tournament_name) document.getElementById('tournamentLabel').textContent = m.tournament_name;
+    }
+
+    // Initial data load
+    if (matchId && tournamentId) {
+        fetch('/api/tournaments/' + tournamentId + '/matches')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var matches = Array.isArray(data) ? data : [];
+                var m = matches.find(function(x) { return x.id === matchId; });
+                if (m) updateScore(m);
+            })
+            .catch(function() {});
+    }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SF Overlay — Bracket</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary: {{ primary|default("#ff4655") }};
+    --secondary: {{ secondary|default("#00d4ff") }};
+    --tertiary: {{ tertiary|default("#ffd700") }};
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: transparent !important;
+    overflow: hidden;
+    font-family: {{ font_family|default("'Rajdhani', sans-serif") }};
+    width: 1920px;
+    height: 1080px;
+}
+
+.overlay-root {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 40px;
+    background: linear-gradient(180deg, rgba(5,5,15,0.75) 0%, rgba(5,5,15,0.45) 100%);
+    animation: {{ animation|default("slide") }} 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ---- HEADER ---- */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 28px;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: #fff;
+    animation: headerFade 1s ease forwards;
+}
+
+@keyframes headerFade {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.header .hl {
+    color: var(--primary);
+    text-shadow: 0 0 30px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.header-sub {
+    font-size: 14px;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.2);
+    font-weight: 400;
+    margin-left: 10px;
+}
+
+/* ---- HEADER LINE ---- */
+.header-line {
+    width: 200px;
+    height: 2px;
+    margin: 0 auto 24px;
+    background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), transparent);
+    border-radius: 2px;
+}
+
+/* ---- GRID ---- */
+.grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.grid::-webkit-scrollbar { width: 4px; }
+.grid::-webkit-scrollbar-track { background: transparent; }
+.grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+/* ---- CARD ---- */
+.card {
+    background: rgba(10, 10, 25, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    animation: cardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.card:nth-child(1)  { animation-delay: 0.05s; }
+.card:nth-child(2)  { animation-delay: 0.1s; }
+.card:nth-child(3)  { animation-delay: 0.15s; }
+.card:nth-child(4)  { animation-delay: 0.2s; }
+.card:nth-child(5)  { animation-delay: 0.25s; }
+.card:nth-child(6)  { animation-delay: 0.3s; }
+.card:nth-child(7)  { animation-delay: 0.35s; }
+.card:nth-child(8)  { animation-delay: 0.4s; }
+.card:nth-child(9)  { animation-delay: 0.45s; }
+.card:nth-child(10) { animation-delay: 0.5s; }
+.card:nth-child(11) { animation-delay: 0.55s; }
+.card:nth-child(12) { animation-delay: 0.6s; }
+.card:nth-child(13) { animation-delay: 0.65s; }
+.card:nth-child(14) { animation-delay: 0.7s; }
+.card:nth-child(15) { animation-delay: 0.75s; }
+.card:nth-child(16) { animation-delay: 0.8s; }
+
+@keyframes cardEnter {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.card:hover {
+    border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.card.completed {
+    border-color: color-mix(in srgb, var(--tertiary) 20%, transparent);
+    opacity: 0.6;
+}
+
+.card.live {
+    border-color: var(--primary);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.card-round {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--primary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.card-players {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-player {
+    font-weight: 600;
+    font-size: 15px;
+    color: #fff;
+    font-family: 'Rajdhani', sans-serif;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-score {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 18px;
+    color: var(--primary);
+    min-width: 44px;
+    text-align: center;
+}
+
+.card.completed .card-score {
+    color: var(--tertiary);
+}
+
+.card-status {
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+    margin-top: 5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* ---- EMPTY STATE ---- */
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.15);
+    font-size: 16px;
+    letter-spacing: 2px;
+    font-family: 'Rajdhani', sans-serif;
+    padding: 60px;
+    gap: 12px;
+}
+
+.empty-state .big {
+    font-size: 48px;
+    opacity: 0.5;
+}
+
+/* ====== ENTRY ANIMATION KEYFRAMES ====== */
+@keyframes slide {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes zoom {
+    from { opacity: 0; transform: scale(0.6); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes glitch {
+    0%  { opacity: 0; transform: skewX(0deg); }
+    20% { opacity: 0.8; transform: skewX(-8deg); clip-path: inset(60% 0 0 0); }
+    25% { opacity: 0.9; transform: skewX(8deg); clip-path: inset(30% 0 30% 0); }
+    30% { opacity: 1; transform: skewX(0deg); clip-path: inset(0 0 0 0); }
+    35% { clip-path: inset(0 0 60% 0); }
+    40% { clip-path: inset(0 0 0 0); }
+    100%{ opacity: 1; transform: skewX(0deg); }
+}
+
+@keyframes fire {
+    0%  { opacity: 0; transform: scale(0.9); filter: blur(4px) brightness(0.5); }
+    30% { opacity: 0.7; filter: blur(0) brightness(1.3); }
+    60% { opacity: 1; filter: brightness(1); }
+    100%{ opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+    0%  { opacity: 0; transform: scale(0.95); }
+    20% { transform: scale(1.02); opacity: 1; }
+    40% { transform: scale(0.98); }
+    60% { transform: scale(1.01); }
+    100%{ transform: scale(1); opacity: 1; }
+}
+
+@keyframes neon_sweep {
+    0%  { opacity: 0; filter: brightness(3) hue-rotate(-30deg); }
+    30% { opacity: 0.5; filter: brightness(1.5) hue-rotate(0deg); }
+    70% { opacity: 1; filter: brightness(1.2); }
+    100%{ opacity: 1; filter: brightness(1) hue-rotate(0deg); }
+}
+
+@keyframes matrix {
+    0%  { opacity: 0; letter-spacing: 40px; }
+    30% { opacity: 0.3; letter-spacing: 10px; }
+    60% { opacity: 1; letter-spacing: 2px; }
+    100%{ opacity: 1; letter-spacing: normal; }
+}
+
+@keyframes punch {
+    0%  { opacity: 0; transform: scale(1.3) rotate(-2deg); }
+    20% { opacity: 0.6; transform: scale(0.9) rotate(1deg); }
+    50% { opacity: 1; transform: scale(1.05); }
+    100%{ opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes swing {
+    0%  { opacity: 0; transform: rotate(-15deg) scale(0.7); }
+    30% { opacity: 0.7; transform: rotate(5deg) scale(1.05); }
+    60% { opacity: 1; transform: rotate(-2deg) scale(0.98); }
+    100%{ opacity: 1; transform: rotate(0deg) scale(1); }
+}
+
+@keyframes blast {
+    0%  { opacity: 0; transform: scale(0.3); filter: brightness(3); }
+    30% { opacity: 0.8; transform: scale(1.15); filter: brightness(1.5); }
+    60% { transform: scale(0.95); filter: brightness(1); }
+    100%{ opacity: 1; transform: scale(1); filter: brightness(1); }
+}
+
+@keyframes fatality {
+    0%  { opacity: 0; filter: saturate(0) brightness(2); }
+    25% { opacity: 0.5; filter: saturate(2) brightness(1.5); }
+    50% { opacity: 1; filter: saturate(1.5); }
+    100%{ opacity: 1; filter: saturate(1) brightness(1); }
+}
+
+@keyframes bounce {
+    0%  { opacity: 0; transform: translateY(-80px); }
+    50% { opacity: 1; transform: translateY(15px); }
+    70% { transform: translateY(-8px); }
+    85% { transform: translateY(3px); }
+    100%{ opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow {
+    0%  { opacity: 0; filter: brightness(0.3) drop-shadow(0 0 0 transparent); }
+    40% { opacity: 0.7; filter: brightness(1.5) drop-shadow(0 0 20px var(--primary)); }
+    100%{ opacity: 1; filter: brightness(1) drop-shadow(0 0 8px color-mix(in srgb, var(--primary) 30%, transparent)); }
+}
+
+@keyframes spin {
+    0%  { opacity: 0; transform: rotateY(90deg); }
+    60% { opacity: 1; transform: rotateY(-10deg); }
+    80% { transform: rotateY(5deg); }
+    100%{ opacity: 1; transform: rotateY(0deg); }
+}
+
+/* ---- LOGO ---- */
+.overlay-logo {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.overlay-logo img {
+    max-height: 40px;
+    opacity: 0.7;
+}
+</style>
+</head>
+<body>
+
+{% if logo_url %}
+<div class="overlay-logo">
+    <img src="{{ logo_url }}">
+</div>
+{% endif %}
+
+<div class="overlay-root">
+    <div class="header">
+        ⚔️ <span class="hl">BRACKET</span> EN DIRECT
+        <span class="header-sub">LIVE</span>
+    </div>
+    <div class="header-line"></div>
+    <div class="grid" id="matchGrid">
+        <div class="empty-state">
+            <div class="big">🎮</div>
+            <div id="emptyMsg">En attente des matchs...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    var wsUrl = 'ws://' + window.location.host + '/ws/dashboard';
+    var socket = null;
+    var tourneyId = {{ tournament_id|default("0") }};
+    var lang = '{{ lang|default("fr") }}';
+
+    var i18n = {
+        fr: { waiting: 'En attente des matchs...', completed: '✅ Terminé', live: '🔴 En cours', pending: '⏳ En attente', round: 'Round' },
+        en: { waiting: 'Waiting for matches...', completed: '✅ Completed', live: '🔴 Live', pending: '⏳ Pending', round: 'Round' }
+    };
+    var _t = i18n[lang] || i18n.fr;
+
+    document.getElementById('emptyMsg').textContent = _t.waiting;
+
+    function connectWs() {
+        socket = new WebSocket(wsUrl);
+        socket.onopen = function() { console.log('WS overview connecté'); };
+        socket.onmessage = function(e) {
+            try {
+                var data = JSON.parse(e.data);
+                if (data.match) upsertCard(data.match);
+            } catch(err) {}
+        };
+        socket.onclose = function() {
+            setTimeout(function() { connectWs(); }, 3000);
+        };
+    }
+
+    connectWs();
+
+    setInterval(function() {
+        if (socket && socket.readyState === 1) socket.send('ping');
+    }, 30000);
+
+    // Load initial match data via API
+    if (tourneyId) {
+        fetch('/api/tournaments/' + tourneyId + '/matches')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var matches = Array.isArray(data) ? data : (data.matches || []);
+                if (matches.length > 0) {
+                    matches.forEach(function(m) { upsertCard(m); });
+                }
+            })
+            .catch(function() {});
+    }
+
+    function upsertCard(m) {
+        var grid = document.getElementById('matchGrid');
+        var existing = document.getElementById('mc-' + m.id);
+        if (existing) existing.remove();
+
+        var empty = grid.querySelector('.empty-state');
+        if (empty) empty.remove();
+
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.id = 'mc-' + m.id;
+        if (m.state === 'complete') card.classList.add('completed');
+        else if (m.state === 'pending' || m.state === 'open') card.classList.add('live');
+
+        var p1 = (m.player1 && m.player1.name) || 'TBD';
+        var p2 = (m.player2 && m.player2.name) || 'TBD';
+        var s1 = (m.player1 && m.player1.score != null) ? m.player1.score : '-';
+        var s2 = (m.player2 && m.player2.score != null) ? m.player2.score : '-';
+
+        var statusText;
+        if (m.state === 'complete') statusText = _t.completed;
+        else if (m.state === 'pending') statusText = _t.live;
+        else statusText = _t.pending;
+
+        var roundNum = Math.abs(m.round || 1);
+
+        card.innerHTML =
+            '<div class="card-round">' + _t.round + ' ' + roundNum + '</div>' +
+            '<div class="card-players">' +
+                '<div class="card-player">' + p1.replace(/</g, '&lt;') + '</div>' +
+                '<div class="card-score">' + s1 + '–' + s2 + '</div>' +
+                '<div class="card-player">' + p2.replace(/</g, '&lt;') + '</div>' +
+            '</div>' +
+            '<div class="card-status">' + statusText + '</div>';
+
+        grid.insertBefore(card, grid.firstChild);
+    }
+})();
+</script>
+</body>
+</html>
