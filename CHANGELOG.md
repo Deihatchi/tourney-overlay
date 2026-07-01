@@ -2,10 +2,10 @@
 
 All notable changes to Tourney-Overlay will be documented in this format.
 
-## [2.0.0] - 2025-06-30
+## [1.0.0] - 2025-06-30
 
 ### Added
-- Complete rewrite from v1 (sf-overlay)
+- Initial release of **Tourney-Overlay** (complete rewrite from legacy sf-overlay)
 - FastAPI backend with async support
 - Native Starlette WebSockets for real-time updates
 - 24 game themes with custom colors & animations
@@ -20,7 +20,8 @@ All notable changes to Tourney-Overlay will be documented in this format.
 - Docker multi-stage build (Python 3.13 + uv)
 - docker-compose.yml for easy deployment
 - Portainer deploy script
-- GitHub Actions workflow for GHCR image builds
+- GitHub Actions CI workflow (`docker-build.yml`)
+- GitHub Actions Release workflow (`docker-publish.yml`) — auto-release on tag push
 - **PolyForm Noncommercial License 1.0.0**
 
 ### Fixed
@@ -31,7 +32,9 @@ All notable changes to Tourney-Overlay will be documented in this format.
 - 500 errors on invalid Challonge subdomain
 - MatchState enum uses `completed` (not `complete`)
 
-## [1.0.0] - 2024 (Legacy sf-overlay)
+---
+
+## [0.9.0] - 2024 (Legacy sf-overlay)
 
 ### Added
 - Initial tournament overlay system
@@ -41,4 +44,4 @@ All notable changes to Tourney-Overlay will be documented in this format.
 
 ---
 
-**Note**: v2.0.0 is a complete rewrite and not backward compatible with v1.
+**Note**: v1.0.0 is a complete rewrite and not backward compatible with the legacy sf-overlay.
