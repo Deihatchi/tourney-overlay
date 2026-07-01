@@ -10,7 +10,7 @@ services:
       - "8002:8000"
     environment:
       - SF_CHALLONGE_API_KEY=${CHALLONGE_API_KEY:-}
-      - SF_CHALLENGE_USERNAME=${CHALLENGE_USERNAME:-}
+      - SF_CHALLONGE_USERNAME=${CHALLONGE_USERNAME:-}
       - SF_HOST=0.0.0.0
       - SF_PORT=8000
     restart: unless-stopped
