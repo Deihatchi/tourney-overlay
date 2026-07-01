@@ -2,6 +2,20 @@
 
 All notable changes to Tourney-Overlay will be documented in this format.
 
+## [1.1.0] - 2025-07-01
+
+### Added
+- **Official game icons**: 24 games now have Steam header images (SF6, Tekken 8, GG Strive, etc.)
+- **Challonge logo** for Custom game option
+- **Game icon display** next to game selector in dashboard (updates on game change)
+- **Winner badge** replaces animated crown on score overlay
+- **Winner text i18n**: "VAINQUEUR" (FR) / "WINNER" (EN) based on `lang` parameter
+- Winner badge styling: gold border, pulse animation, tertiary color theming
+
+### Changed
+- Score overlay: crown emoji → styled winner badge with text
+- Dashboard: game selector now shows official game icon
+
 ## [1.0.0] - 2025-06-30
 
 ### Added
