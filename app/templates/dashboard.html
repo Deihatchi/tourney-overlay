@@ -272,13 +272,13 @@ function applyLang(l) {
     document.querySelectorAll('[data-i]').forEach(function(el) {
         var k = el.dataset.i; if (k) el.textContent = t(k);
     });
-    document.getElementById('lbl_svc').innerHTML = '🔌 ' + t('service');
-    document.getElementById('lbl_game').innerHTML = '🎮 ' + t('game');
-    document.getElementById('lbl_api').innerHTML = '🔑 ' + t('api_key');
+    document.getElementById('lbl_svc').textContent = t('service');
+    document.getElementById('lbl_game').textContent = t('game');
+    document.getElementById('lbl_api').textContent = t('api_key');
     document.getElementById('lbl_apikey').textContent = t('api_key');
     document.getElementById('lbl_user').textContent = t('username');
     document.getElementById('cfgBtn').innerHTML = ' ' + t('connect');
-    document.getElementById('lbl_tourney').innerHTML = '🏟️ ' + t('tournament');
+    document.getElementById('lbl_tourney').textContent = t('tournament');
     document.getElementById('lbl_style').innerHTML = ' ' + t('style');
     document.getElementById('lbl_color1').textContent = t('primary');
     document.getElementById('lbl_color2').textContent = t('secondary');
@@ -286,8 +286,8 @@ function applyLang(l) {
     document.getElementById('lbl_anim').textContent = t('animation');
     document.getElementById('lbl_res').textContent = t('resolution');
     document.getElementById('lbl_preview').textContent = t('preview');
-    document.getElementById('lbl_matches').innerHTML = '🎯 ' + t('matches');
-    document.getElementById('lbl_overlays').innerHTML = '🔗 ' + t('overlays');
+    document.getElementById('lbl_matches').textContent = t('matches');
+    document.getElementById('lbl_overlays').textContent = t('overlays');
     document.getElementById('lbl_winner').textContent = t('winner') + ' (' + t('optional') + ')';
 }
 

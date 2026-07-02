@@ -179,11 +179,21 @@ body {
 }
 
 .card-status {
-    font-size: 10px;
-    color: rgba(255,255,255,0.5);
-    margin-top: 5px;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 11px;
+    color: rgba(255,255,255,0.8);
+    margin-top: 6px;
     letter-spacing: 2px;
     text-transform: uppercase;
+}
+
+.card.completed .card-status {
+    color: var(--tertiary);
+}
+
+.card.live .card-status {
+    color: var(--primary);
 }
 
 /* ---- EMPTY STATE ---- */
@@ -335,13 +345,13 @@ body {
 
 <div class="overlay-root">
     <div class="header">
-        ⚔️ <span class="hl">BRACKET</span> EN DIRECT
+        <span class="hl">BRACKET</span> EN DIRECT
         <span class="header-sub">LIVE</span>
     </div>
     <div class="header-line"></div>
     <div class="grid" id="matchGrid">
         <div class="empty-state">
-            <div class="big">🎮</div>
+            <div class="big" style="font-size:28px;color:var(--primary)">VS</div>
             <div id="emptyMsg">En attente des matchs...</div>
         </div>
     </div>
@@ -355,8 +365,8 @@ body {
     var lang = '{{ lang|default("fr") }}';
 
     var i18n = {
-        fr: { waiting: 'En attente des matchs...', completed: '✅ Terminé', live: '🔴 En cours', pending: '⏳ En attente', round: 'Round' },
-        en: { waiting: 'Waiting for matches...', completed: '✅ Completed', live: '🔴 Live', pending: '⏳ Pending', round: 'Round' }
+        fr: { waiting: 'En attente des matchs...', completed: 'TERMINÉ', live: 'EN COURS', pending: 'EN ATTENTE', round: 'Round', winner: 'VAINQUEUR' },
+        en: { waiting: 'Waiting for matches...', completed: 'COMPLETED', live: 'LIVE', pending: 'PENDING', round: 'Round', winner: 'WINNER' }
     };
     var _t = i18n[lang] || i18n.fr;
 
@@ -415,8 +425,12 @@ body {
         var s2 = (m.player2 && m.player2.score != null) ? m.player2.score : '-';
 
         var statusText;
-        if (m.state === 'complete') statusText = _t.completed;
-        else if (m.state === 'pending') statusText = _t.live;
+        if (m.state === 'complete') {
+            var winner = '';
+            if (m.player1 && m.player1.is_winner) winner = m.player1.name;
+            else if (m.player2 && m.player2.is_winner) winner = m.player2.name;
+            statusText = _t.completed + (winner ? ' - ' + _t.winner + ': ' + winner : '');
+        } else if (m.state === 'pending') statusText = _t.live;
         else statusText = _t.pending;
 
         var roundNum = Math.abs(m.round || 1);
@@ -424,9 +438,9 @@ body {
         card.innerHTML =
             '<div class="card-round">' + _t.round + ' ' + roundNum + '</div>' +
             '<div class="card-players">' +
-                '<div class="card-player">' + p1.replace(/</g, '&lt;') + '</div>' +
+                '<div class="card-player">' + p1.replace(/</g, '<') + '</div>' +
                 '<div class="card-score">' + s1 + '–' + s2 + '</div>' +
-                '<div class="card-player">' + p2.replace(/</g, '&lt;') + '</div>' +
+                '<div class="card-player">' + p2.replace(/</g, '<') + '</div>' +
             '</div>' +
             '<div class="card-status">' + statusText + '</div>';
 
