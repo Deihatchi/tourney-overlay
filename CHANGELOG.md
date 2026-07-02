@@ -2,6 +2,27 @@
 
 All notable changes to Tourney-Overlay will be documented in this format.
 
+## [1.2.0] - 2025-07-02
+
+### Added
+- **Official Challonge SVG logo** in dashboard (replaces trophy emoji)
+- **Official game icons** (Steam headers) displayed next to game selector
+- **Winner badge** with i18n: "VAINQUEUR" (FR) / "WINNER" (EN) replaces animated crown
+- **Instant score overlay loading** — shows match data immediately via WebSocket
+
+### Changed
+- **Dashboard**: removed all emojis from titles, buttons, dropdowns, categories
+- **Card titles**: lighter color `rgba(255,255,255,0.6)` for better readability
+- **Overview overlay**: status texts without emojis, winner displayed in match status
+- **Card status**: Orbitron font, 700 weight, 11px, 0.8 opacity
+- **Completed matches**: gold status color, Live matches: primary color
+- **LIVE badge** in bracket overlay: translated (EN COURS / LIVE), smaller, centered
+
+### Removed
+- **Logo upload/management** from dashboard (handled directly in OBS)
+- **Logo display** from score and bracket overlays (managed in OBS)
+- `&logo=` parameter from generated overlay URLs
+
 ## [1.1.0] - 2025-07-01
 
 ### Added
