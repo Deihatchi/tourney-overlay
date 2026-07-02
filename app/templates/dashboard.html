@@ -100,7 +100,7 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 <select id="svcSel" style="display:none">
 <option value="challonge" selected>🏆 Challonge</option>
 </select>
-<span style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:600">🏆 Challonge</span></div>
+<span style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px"><img src="https://assets.challonge.com/assets/redesign/logo-symbol-only-20564878c01e7ad7787d3eef7bb34231c482d4c87f825c348bfc35db894bebbb.svg" style="width:24px;height:24px;border-radius:4px;object-fit:cover" alt="Challonge">Challonge</span></div>
 <div class="card"><div class="card-title" id="lbl_game">🎮 Jeu</div>
 <div style="display:flex;align-items:center;gap:10px">
 <select id="gameSel" style="flex:1"><option>Chargement...</option></select>
@@ -577,6 +577,7 @@ function updateUrls() {
     var game = curGame;
     var res = document.getElementById('resSel').value;
     var logo = localStorage.getItem('sf_logo') || '';
+    var lang = document.getElementById('langSel').value;
     var mid = selectedMatchId;
     var tid = selTourney;
     var proto = window.location.protocol;
@@ -585,14 +586,17 @@ function updateUrls() {
     var scoreUrl = proto + '//' + host + '/overlay/score?game=' + game +
         '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
         '&animation=' + a + '&match_id=' + mid + '&tournament_id=' + tid +
-        '&res=' + res + (logo ? '&logo=' + encodeURIComponent(logo) : '');
+        '&res=' + res + (logo ? '&logo=' + encodeURIComponent(logo) : '') +
+        '&lang=' + encodeURIComponent(lang);
     var notifUrl = proto + '//' + host + '/overlay/notification?game=' + game +
         '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
-        '&animation=' + a + (logo ? '&logo=' + encodeURIComponent(logo) : '');
+        '&animation=' + a + (logo ? '&logo=' + encodeURIComponent(logo) : '') +
+        '&lang=' + encodeURIComponent(lang);
     var overviewUrl = proto + '//' + host + '/overview?game=' + game +
         '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
         '&animation=' + a + '&tournament_id=' + tid +
-        (logo ? '&logo=' + encodeURIComponent(logo) : '');
+        (logo ? '&logo=' + encodeURIComponent(logo) : '') +
+        '&lang=' + encodeURIComponent(lang);
     var rlabel = res.replace('x', '\u00d7');
 
     sec.innerHTML =
