@@ -15,6 +15,11 @@ All notable changes to Tourney-Overlay will be documented in this format.
 ### Changed
 - Score overlay: crown emoji → styled winner badge with text
 - Dashboard: game selector now shows official game icon
+- Dashboard: removed all emojis (titles, buttons, dropdowns, categories)
+- Card titles: lighter color `rgba(255,255,255,0.6)`
+- Overview overlay: status texts without emojis, winner displayed in status
+- Card status: Orbitron font, 700 weight, 11px, 0.8 opacity
+- Completed matches: gold status, Live matches: primary color
 
 ## [1.0.0] - 2025-06-30
 
