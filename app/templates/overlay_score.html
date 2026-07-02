@@ -540,7 +540,9 @@ body {
         fetch('/api/tournaments/' + tournamentId + '/matches')
             .then(function(r) { return r.json(); })
             .then(function(data) {
-                var matches = Array.isArray(data) ? data : [];
+                // API returns {matches: [...]} or [...]
+                var matches = data.matches || data;
+                if (!Array.isArray(matches)) matches = [];
                 var m = matches.find(function(x) { return x.id === matchId; });
                 if (m) updateScore(m);
             })

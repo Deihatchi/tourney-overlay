@@ -19,7 +19,7 @@ header{background:linear-gradient(135deg,var(--sf),#1a0a14);border-bottom:1px so
 .pill .dot.off{background:var(--p);box-shadow:0 0 8px rgba(255,70,85,0.3)}
 .c{max-width:1350px;margin:0 auto;padding:30px 40px}
 .card{background:var(--sf);border:1px solid rgba(255,255,255,0.04);border-radius:var(--r);padding:24px;transition:border-color 0.2s}
-.card-title{font-family:'Orbitron',monospace;font-weight:700;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--di);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.card-title{font-family:'Orbitron',monospace;font-weight:700;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:18px;display:flex;align-items:center;gap:8px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .full{grid-column:1/-1}
 @media(max-width:900px){.g2{grid-template-columns:1fr}.c{padding:20px}}
@@ -82,11 +82,11 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 <body>
 
 <header>
-<div class="logo"><div class="logo-icon">⚡</div><span>TOURNEY</span> OVERLAY</div>
+<div class="logo"><div class="logo-icon"></div><span>TOURNEY</span> OVERLAY</div>
 <div style="display:flex;align-items:center;gap:14px">
 <select id="langSel" style="background:var(--sf2);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:4px 8px;color:#fff;font-size:12px;font-family:'Rajdhani',sans-serif;outline:none;cursor:pointer">
-<option value="fr">🇫🇷 FR</option>
-<option value="en">🇬🇧 EN</option>
+<option value="fr">FR</option>
+<option value="en">EN</option>
 </select>
 <span class="pill" id="apiPill"><span class="dot off"></span> API</span>
 </div>
@@ -96,12 +96,12 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 
 <!-- ROW 1: Service + Game -->
 <div class="g2">
-<div class="card"><div class="card-title" id="lbl_svc">🔌 Service</div>
+<div class="card"><div class="card-title" id="lbl_svc">Service</div>
 <select id="svcSel" style="display:none">
-<option value="challonge" selected>🏆 Challonge</option>
+<option value="challonge" selected>Challonge</option>
 </select>
 <span style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px"><img src="https://assets.challonge.com/assets/redesign/logo-symbol-only-20564878c01e7ad7787d3eef7bb34231c482d4c87f825c348bfc35db894bebbb.svg" style="width:24px;height:24px;border-radius:4px;object-fit:cover" alt="Challonge">Challonge</span></div>
-<div class="card"><div class="card-title" id="lbl_game">🎮 Jeu</div>
+<div class="card"><div class="card-title" id="lbl_game">Jeu</div>
 <div style="display:flex;align-items:center;gap:10px">
 <select id="gameSel" style="flex:1"><option>Chargement...</option></select>
 <img id="gameIcon" style="width:32px;height:32px;border-radius:6px;object-fit:cover;display:none" alt="Game icon">
@@ -110,35 +110,35 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 
 <!-- ROW 2: Logo -->
 <div class="g2" style="margin-top:20px">
-<div class="card full"><div class="card-title">🖼️ Logo</div>
+<div class="card full"><div class="card-title">Logo</div>
 <div style="display:flex;gap:10px;align-items:center">
 <input type="file" id="logoIn" accept="image/*" style="display:none">
-<button class="btn btn-s btn-sm" onclick="document.getElementById('logoIn').click()">📁 Choisir</button>
-<button class="btn btn-s btn-sm" id="rmLogoBtn" style="display:none" onclick="removeLogo()">🗑️</button>
+<button class="btn btn-s btn-sm" onclick="document.getElementById('logoIn').click()">Choisir</button>
+<button class="btn btn-s btn-sm" id="rmLogoBtn" style="display:none" onclick="removeLogo()">✕</button>
 </div>
 <div id="logoPrev" style="margin-top:10px;display:none"></div></div>
 </div>
 
 <!-- ROW 3: API + Tournaments -->
 <div class="g2" style="margin-top:20px">
-<div class="card"><div class="card-title" id="lbl_api">🔑 API</div>
+<div class="card"><div class="card-title" id="lbl_api">API</div>
 <div class="g"><label id="lbl_apikey">Clé API Challonge</label><input type="password" id="apiKeyIn" placeholder="Colle ta clé API..."></div>
 <div class="g"><label id="lbl_user">Nom (opt.)</label><input type="text" id="userIn" placeholder="Pseudo"></div>
-<button class="btn btn-p" onclick="connectApi()" id="cfgBtn">⚡ Connecter</button>
+<button class="btn btn-p" onclick="connectApi()" id="cfgBtn">Connecter</button>
 <div id="cfgFb" style="margin-top:8px;font-size:13px"></div></div>
-<div class="card"><div class="card-title" id="lbl_tourney">🏟️ Tournoi</div>
+<div class="card"><div class="card-title" id="lbl_tourney">Tournoi</div>
 <div class="tlist" id="tourneyList"><div class="em" id="lbl_notourney">Connecte d'abord ton API</div></div>
 <div style="display:flex;gap:8px;margin-top:10px">
-<button class="btn btn-s btn-sm" onclick="loadTourneys()" id="refBtn" disabled>🔄</button>
-<button class="btn btn-g btn-sm" onclick="startPoll()" id="polBtn" disabled>▶ Surveiller</button>
-<button class="btn btn-r btn-sm" onclick="stopPoll()" id="stpBtn" disabled>⏹ Arrêter</button>
+<button class="btn btn-s btn-sm" onclick="loadTourneys()" id="refBtn" disabled>↻</button>
+<button class="btn btn-g btn-sm" onclick="startPoll()" id="polBtn" disabled>Surveiller</button>
+<button class="btn btn-r btn-sm" onclick="stopPoll()" id="stpBtn" disabled>Arrêter</button>
 </div>
 <div id="polFb" style="margin-top:6px;font-size:12px;color:var(--di)"></div></div>
 </div>
 
 <!-- ROW 4: Style -->
 <div class="card full" style="margin-top:20px">
-<div class="card-title" id="lbl_style">🎨 Style</div>
+<div class="card-title" id="lbl_style">Style</div>
 <div class="sg">
 <div>
 <div class="g"><label id="lbl_color1">Couleur principale</label>
@@ -171,7 +171,7 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 </div>
 </div>
 <div style="margin-top:10px">
-<button class="btn btn-p" onclick="applyStyle()">🎨 Appliquer le style</button>
+<button class="btn btn-p" onclick="applyStyle()"> Appliquer le style</button>
 </div>
 </div>
 </div>
@@ -179,13 +179,13 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 
 <!-- ROW 5: Matches -->
 <div class="card full" style="margin-top:20px">
-<div class="card-title" id="lbl_matches">🎯 Matchs</div>
+<div class="card-title" id="lbl_matches">Matchs</div>
 <div class="ml" id="matchCont"><div class="em" id="lbl_nomatch">Sélectionne un tournoi</div></div>
 </div>
 
 <!-- ROW 6: Overlay URLs -->
 <div class="card full" style="margin-top:20px">
-<div class="card-title" id="lbl_overlays">🔗 Overlays OBS</div>
+<div class="card-title" id="lbl_overlays">Overlays OBS</div>
 <div id="urlSec"><div class="em" id="lbl_nourl">Sélectionne un match</div></div>
 </div>
 
@@ -277,9 +277,9 @@ function applyLang(l) {
     document.getElementById('lbl_api').innerHTML = '🔑 ' + t('api_key');
     document.getElementById('lbl_apikey').textContent = t('api_key');
     document.getElementById('lbl_user').textContent = t('username');
-    document.getElementById('cfgBtn').innerHTML = '⚡ ' + t('connect');
+    document.getElementById('cfgBtn').innerHTML = ' ' + t('connect');
     document.getElementById('lbl_tourney').innerHTML = '🏟️ ' + t('tournament');
-    document.getElementById('lbl_style').innerHTML = '🎨 ' + t('style');
+    document.getElementById('lbl_style').innerHTML = ' ' + t('style');
     document.getElementById('lbl_color1').textContent = t('primary');
     document.getElementById('lbl_color2').textContent = t('secondary');
     document.getElementById('lbl_color3').textContent = t('tertiary');
@@ -308,11 +308,11 @@ async function loadGames() {
         });
         Object.keys(cats).sort().forEach(function(c) {
             var gr = document.createElement('optgroup');
-            gr.label = c;
+            gr.label = c.replace(/[\u{1F300}-\u{1FAFF}]/gu, '').trim();
             cats[c].forEach(function(gm) {
                 var o = document.createElement('option');
                 o.value = gm.id;
-                o.textContent = gm.emoji + ' ' + gm.name;
+                o.textContent = gm.name;
                 o.dataset.icon = gm.icon || '';
                 gr.appendChild(o);
             });
@@ -329,7 +329,7 @@ async function loadGames() {
     } catch(e) {
         console.error('loadGames error:', e);
         document.getElementById('gameSel').innerHTML = '<option>Erreur</option>';
-        toast('❌', 'Jeux indisponibles', 'e');
+        toast('Erreur', 'Jeux indisponibles', 'e');
     }
 }
 
@@ -476,7 +476,7 @@ async function connectApi() {
             toast('❌', d.detail || 'Erreur', 'e');
         }
     } catch(e) { toast('❌', 'Erreur connexion', 'e'); }
-    btn.disabled = false; btn.innerHTML = '⚡ Connecter';
+    btn.disabled = false; btn.innerHTML = 'Connecter';
 }
 
 /* ── Tournaments ─────────────────────────────────────────────────── */
