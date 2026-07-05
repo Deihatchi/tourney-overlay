@@ -41,6 +41,18 @@ async def get_status() -> dict:
     }
 
 
+# ── Version ──────────────────────────────────────────────────────────────────
+@router.get("/version")
+async def get_version() -> dict:
+    """Return application version."""
+    import importlib.metadata
+    try:
+        version = importlib.metadata.version("tourney-overlay")
+    except importlib.metadata.PackageNotFoundError:
+        version = "dev"
+    return {"version": version}
+
+
 # ── Games ────────────────────────────────────────────────────────────────────
 @router.get("/games")
 async def get_games() -> dict:

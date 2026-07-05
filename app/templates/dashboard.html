@@ -84,6 +84,7 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 <header>
 <div class="logo"><div class="logo-icon"></div><span>TOURNEY</span> OVERLAY</div>
 <div style="display:flex;align-items:center;gap:14px">
+<span class="pill" style="background:var(--sf2);font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px">v{{ version }}</span>
 <select id="langSel" style="background:var(--sf2);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:4px 8px;color:#fff;font-size:12px;font-family:'Rajdhani',sans-serif;outline:none;cursor:pointer">
 <option value="fr">FR</option>
 <option value="en">EN</option>
@@ -108,18 +109,7 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 </div></div>
 </div>
 
-<!-- ROW 2: Logo -->
-<div class="g2" style="margin-top:20px">
-<div class="card full"><div class="card-title">Logo</div>
-<div style="display:flex;gap:10px;align-items:center">
-<input type="file" id="logoIn" accept="image/*" style="display:none">
-<button class="btn btn-s btn-sm" onclick="document.getElementById('logoIn').click()">Choisir</button>
-<button class="btn btn-s btn-sm" id="rmLogoBtn" style="display:none" onclick="removeLogo()">✕</button>
-</div>
-<div id="logoPrev" style="margin-top:10px;display:none"></div></div>
-</div>
-
-<!-- ROW 3: API + Tournaments -->
+<!-- ROW 2: API + Tournaments -->
 <div class="g2" style="margin-top:20px">
 <div class="card"><div class="card-title" id="lbl_api">API</div>
 <div class="g"><label id="lbl_apikey">Clé API Challonge</label><input type="password" id="apiKeyIn" placeholder="Colle ta clé API..."></div>
@@ -410,47 +400,6 @@ function applyStyle() {
     updateUrls();
 }
 
-/* ── Logo ────────────────────────────────────────────────────────── */
-document.getElementById('logoIn').onchange = function() {
-    var file = this.files[0]; if (!file) return;
-    var reader = new FileReader();
-    reader.onload = async function(e) {
-        try {
-            var r = await fetch(BASE + '/api/logo', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ data: e.target.result })
-            });
-            var d = await r.json();
-            if (d.url) { localStorage.setItem('sf_logo', d.url); showLogo(d.url); }
-        } catch(ex) { toast('❌', 'Erreur upload', 'e'); }
-    };
-    reader.readAsDataURL(file);
-};
-
-function showLogo(url) {
-    var el = document.getElementById('logoPrev');
-    el.innerHTML = '<img src="' + url + '" style="max-height:50px;border-radius:6px">';
-    el.style.display = '';
-    document.getElementById('rmLogoBtn').style.display = '';
-}
-
-function removeLogo() {
-    localStorage.removeItem('sf_logo');
-    document.getElementById('logoPrev').style.display = 'none';
-    document.getElementById('rmLogoBtn').style.display = 'none';
-}
-
-async function loadLogo() {
-    var saved = localStorage.getItem('sf_logo');
-    if (saved) { showLogo(saved); return; }
-    try {
-        var r = await fetch(BASE + '/api/logo');
-        var d = await r.json();
-        if (d.url) { showLogo(d.url); localStorage.setItem('sf_logo', d.url); }
-    } catch(e) {}
-}
-
 /* ── API Connection ──────────────────────────────────────────────── */
 async function connectApi() {
     var key = document.getElementById('apiKeyIn').value.trim();
@@ -576,7 +525,6 @@ function updateUrls() {
     var a = document.getElementById('animSel').value;
     var game = curGame;
     var res = document.getElementById('resSel').value;
-    var logo = localStorage.getItem('sf_logo') || '';
     var lang = document.getElementById('langSel').value;
     var mid = selectedMatchId;
     var tid = selTourney;
@@ -586,16 +534,13 @@ function updateUrls() {
     var scoreUrl = proto + '//' + host + '/overlay/score?game=' + game +
         '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
         '&animation=' + a + '&match_id=' + mid + '&tournament_id=' + tid +
-        '&res=' + res + (logo ? '&logo=' + encodeURIComponent(logo) : '') +
-        '&lang=' + encodeURIComponent(lang);
+        '&res=' + res + '&lang=' + encodeURIComponent(lang);
     var notifUrl = proto + '//' + host + '/overlay/notification?game=' + game +
         '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
-        '&animation=' + a + (logo ? '&logo=' + encodeURIComponent(logo) : '') +
-        '&lang=' + encodeURIComponent(lang);
+        '&animation=' + a + '&lang=' + encodeURIComponent(lang);
     var overviewUrl = proto + '//' + host + '/overview?game=' + game +
         '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
         '&animation=' + a + '&tournament_id=' + tid +
-        (logo ? '&logo=' + encodeURIComponent(logo) : '') +
         '&lang=' + encodeURIComponent(lang);
     var rlabel = res.replace('x', '\u00d7');
 
@@ -607,15 +552,15 @@ function updateUrls() {
                     '<button class="btn btn-s btn-sm" onclick="copyUrl(\'scUrl\')">📋</button>' +
                 '</div></div>' +
             '<div class="ui"><span class="uc" id="noUrl">' + notifUrl + '</span>' +
-                '<div class="ub">' +
-                    '<button class="btn btn-p btn-sm" onclick="previewUrl(\'' + notifUrl.replace(/'/g, "\\'") + '\', 500, 300)">▶</button>' +
-                    '<button class="btn btn-s btn-sm" onclick="copyUrl(\'noUrl\')">📋</button>' +
-                '</div></div>' +
-            '<div class="ui"><span class="uc" id="ovUrl">' + overviewUrl + '</span>' +
-                '<div class="ub">' +
-                    '<button class="btn btn-p btn-sm" onclick="previewUrl(\'' + overviewUrl.replace(/'/g, "\\'") + '\', 1200, 600)">▶</button>' +
-                    '<button class="btn btn-s btn-sm" onclick="copyUrl(\'ovUrl\')">📋</button>' +
-                '</div></div>' +
+                            '<div class="ub">' +
+                                '<button class="btn btn-p btn-sm" onclick="previewUrl(\\'' + notifUrl.replace(/'/g, "\\'") + '\\', 500, 300)">▶</button>' +
+                                '<button class="btn btn-s btn-sm" onclick="copyUrl(\\'noUrl\\')">📋</button>' +
+                            '</div></div>' +
+                        '<div class="ui"><span class="uc" id="ovUrl">' + overviewUrl + '</span>' +
+                            '<div class="ub">' +
+                                '<button class="btn btn-p btn-sm" onclick="previewUrl(\\'' + overviewUrl.replace(/'/g, "\\'") + '\\', 1200, 600)">▶</button>' +
+                                '<button class="btn btn-s btn-sm" onclick="copyUrl(\\'ovUrl\\')">📋</button>' +
+                            '</div></div>' +
         '</div>' +
         '<div class="em" style="padding:12px;margin-top:10px;line-height:1.6;text-align:left;font-size:12px">' +
             '\u26a1 Ajoute ces URLs dans OBS comme <strong>Source Navigateur</strong> en <strong>' + rlabel + '</strong>, fond transparent.</div>';
@@ -739,14 +684,58 @@ function connectDashboardWs() {
         console.log('WS dashboard connecté');
     };
 
-    dashboardWs.onmessage = function(e) {
+    function updateMatchInList(match) {
+    var mc = document.getElementById('matchCont');
+    var existing = mc.querySelector('.mi[data-match-id="' + match.id + '"]');
+    
+    var p1 = (match.player1 && match.player1.name) || 'TBD';
+    var p2 = (match.player2 && match.player2.name) || 'TBD';
+    var s1 = (match.player1 && match.player1.score != null) ? match.player1.score : '-';
+    var s2 = (match.player2 && match.player2.score != null) ? match.player2.score : '-';
+    var rd = match.round ? 'R' + Math.abs(match.round) : '';
+    var si = match.state === 'complete' ? '✅' : match.state === 'pending' ? '🔴' : '⏳';
+    var a1 = (match.player1 && match.player1.avatar_url) || '';
+    var a2 = (match.player2 && match.player2.avatar_url) || '';
+    var p1id = (match.player1 && match.player1.id) || 0;
+    var p2id = (match.player2 && match.player2.id) || 0;
+    var wid = match.winner_id || 0;
+
+    var html =
+        '<div class="mp" onclick="selectMatch(' + match.id + ')">' +
+            (a1 ? '<img src="' + a1 + '" class="av">' : '<div class="av-ph"></div>') +
+            '<span>' + p1.replace(/\\\"/g, '"') + '</span>' +
+            '<span class="mv">VS</span>' +
+            '<span>' + p2.replace(/\\\"/g, '"') + '</span>' +
+            (a2 ? '<img src="' + a2 + '" class="av">' : '<div class="av-ph"></div>') +
+        '</div>' +
+        '<div class="ms">' + s1 + '\u2014' + s2 + '</div>' +
+        '<div class="mst">' + si + ' ' + rd + '</div>' +
+        '<button class="btn btn-s btn-sm" onclick="event.stopPropagation();openScoreEditor(' +
+            match.id + ',' + p1id + ',\\'' + p1.replace(/'/g, "\\'") + '\\',' +
+            p2id + ',\\'' + p2.replace(/'/g, "\\'") + '\\',' +
+            (s1 === '-' ? 0 : s1) + ',' + (s2 === '-' ? 0 : s2) + ',' + wid + ')" ' +
+            'style="flex-shrink:0">✏️</button>';
+
+    if (existing) {
+        existing.innerHTML = html;
+        existing.className = 'mi';
+        if (match.state === 'complete') existing.classList.add('s');
+    } else {
+        var di = document.createElement('div');
+        di.className = 'mi';
+        di.dataset.matchId = match.id;
+        di.innerHTML = html;
+        if (match.state === 'complete') di.classList.add('s');
+        mc.appendChild(di);
+    }
+}
+
+dashboardWs.onmessage = function(e) {
         try {
             var d = JSON.parse(e.data);
             if (d.match) {
-                var activeTourney = document.querySelector('.ti.a');
-                if (activeTourney) {
-                    setTimeout(function() { selectTourney(parseInt(activeTourney.dataset.id)); }, 500);
-                }
+                // Update match in real-time without page reload
+                updateMatchInList(d.match);
             }
         } catch(ex) {}
     };
@@ -759,7 +748,6 @@ function connectDashboardWs() {
 /* ── Init ─────────────────────────────────────────────────────────── */
 loadLang();
 loadGames();
-loadLogo();
 connectDashboardWs();
 document.getElementById('stpBtn').disabled = true;
 

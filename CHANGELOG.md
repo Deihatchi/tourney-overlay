@@ -2,6 +2,23 @@
 
 All notable changes to Tourney-Overlay will be documented in this format.
 
+## [1.2.1] - 2025-07-03
+
+### Added
+- **Version badge** visible on dashboard header and all overlays (bracket, score, notification)
+- **Change detection in polling** — only broadcasts WebSocket updates when match state actually changes (scores, winner, state)
+- **Real-time dashboard match list updates** via WebSocket — no page reload when matches change
+
+### Changed
+- **Removed logo handling entirely** from dashboard and all overlay URLs (`&logo=` parameter removed)
+- **Overlay bracket**: winner displayed with animated "VAINQUEUR"/"WINNER" badge
+- **All overlays**: version badge in bottom-right corner
+- **WebSocket broadcasting**: optimized to only send updates on actual changes
+
+### Fixed
+- **Dashboard game selector** now properly loads 24 games on startup
+- **API key configuration** flow works correctly (connect → load tournaments → select → watch)
+
 ## [1.2.0] - 2025-07-02
 
 ### Added

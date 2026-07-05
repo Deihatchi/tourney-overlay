@@ -410,16 +410,28 @@ body {
     z-index: 5;
     pointer-events: none;
 }
+
+/* VERSION BADGE */
+.version-badge {
+    position: fixed;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(10, 10, 20, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.4);
+    z-index: 1000;
+    pointer-events: none;
+}
 </style>
 </head>
 <body>
 <div class="corner-tag">SF OVERLAY</div>
-
-{% if logo_url %}
-<div style="position:absolute;top:20px;left:50%;transform:translateX(-50%);z-index:5;pointer-events:none">
-<img src="{{ logo_url }}" style="max-height:50px;opacity:0.8">
-</div>
-{% endif %}
 
 <div class="score-wrapper" id="scoreOverlay">
     <div class="score-bg">
@@ -547,8 +559,10 @@ body {
                 if (m) updateScore(m);
             })
             .catch(function() {});
-    }
-})();
+    })
+();
 </script>
+
+<div class="version-badge">v{{ version }}</div>
 </body>
 </html>

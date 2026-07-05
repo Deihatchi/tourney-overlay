@@ -242,9 +242,14 @@ def update_match_score(
 
 # ── Polling ──────────────────────────────────────────────────────────────────
 
+# Store last known match states for change detection
+_match_cache: dict[int, int] = {}
+
 async def poll_tournament(tournament_id: int, interval: int = 15) -> None:
     """Asyncio task that polls a tournament for match updates and broadcasts via WebSocket."""
     import asyncio as _asyncio
+
+    global _match_cache
 
     while True:
         try:
@@ -253,9 +258,29 @@ async def poll_tournament(tournament_id: int, interval: int = 15) -> None:
                 None, fetch_matches, _api_key, tournament_id, ""
             )
             for match in matches:
-                await manager.broadcast_match_update(match)
-                if match.state == "completed" or match.state.value == "completed":
-                    await manager.broadcast_notification(match)
+                # Create a hash of the match state for change detection
+                match_hash = hash((
+                    match.id,
+                    match.state,
+                    match.round,
+                    match.player1.id if match.player1 else None,
+                    match.player1.name if match.player1 else None,
+                    match.player1.score if match.player1 else None,
+                    match.player1.is_winner if match.player1 else None,
+                    match.player2.id if match.player2 else None,
+                    match.player2.name if match.player2 else None,
+                    match.player2.score if match.player2 else None,
+                    match.player2.is_winner if match.player2 else None,
+                    match.winner_id,
+                ))
+                
+                # Only broadcast if the match state has changed
+                cache_key = match.id
+                if _match_cache.get(cache_key) != match_hash:
+                    _match_cache[cache_key] = match_hash
+                    await manager.broadcast_match_update(match)
+                    if match.state == "completed":
+                        await manager.broadcast_notification(match)
         except Exception:
             pass
         await _asyncio.sleep(interval)

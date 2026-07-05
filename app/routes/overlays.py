@@ -44,12 +44,17 @@ async def overlay_score(
     font: str = Query(default="Rajdhani", description="Font family"),
     show_round: bool = Query(default=True),
     res: str = Query(default="1920x1080", description="Resolution"),
-    logo: str = Query(default="", description="Logo URL"),
     lang: str = Query(default="fr", description="Language"),
 ):
     theme = _resolve_theme(game, primary, secondary, tertiary, animation)
     # Winner text based on language
     winner_text = "VAINQUEUR" if lang == "fr" else "WINNER"
+    # Get version from package metadata
+    import importlib.metadata
+    try:
+        version = importlib.metadata.version("tourney-overlay")
+    except importlib.metadata.PackageNotFoundError:
+        version = "dev"
     tmpl = templates_env.get_template("overlay_score.html")
     return tmpl.render(
         request=request,
@@ -60,9 +65,9 @@ async def overlay_score(
         font_family=f"'Orbitron', monospace" if font == "Orbitron" else f"'{font}', sans-serif",
         show_round=show_round,
         resolution=res,
-        logo_url=logo,
         lang=lang,
         winner_text=winner_text,
+        version=version,
     )
 
 
@@ -77,10 +82,15 @@ async def overlay_notification(
     duration: int = Query(default=8),
     position: str = Query(default="bottom-right"),
     font: str = Query(default="Rajdhani"),
-    logo: str = Query(default=""),
     lang: str = Query(default="fr"),
 ):
     theme = _resolve_theme(game, primary, secondary, tertiary, animation)
+    # Get version from package metadata
+    import importlib.metadata
+    try:
+        version = importlib.metadata.version("tourney-overlay")
+    except importlib.metadata.PackageNotFoundError:
+        version = "dev"
     tmpl = templates_env.get_template("overlay_notification.html")
     return tmpl.render(
         request=request,
@@ -89,8 +99,8 @@ async def overlay_notification(
         notification_duration=duration,
         notification_position=position,
         font_family=f"'{font}', sans-serif",
-        logo_url=logo,
         lang=lang,
+        version=version,
     )
 
 
@@ -104,10 +114,15 @@ async def overview_overlay(
     tertiary: str = Query(default="#ffd700"),
     animation: str = Query(default="slide"),
     font: str = Query(default="Rajdhani"),
-    logo: str = Query(default=""),
     lang: str = Query(default="fr"),
 ):
     theme = _resolve_theme(game, primary, secondary, tertiary, animation)
+    # Get version from package metadata
+    import importlib.metadata
+    try:
+        version = importlib.metadata.version("tourney-overlay")
+    except importlib.metadata.PackageNotFoundError:
+        version = "dev"
     tmpl = templates_env.get_template("overview_overlay.html")
     return tmpl.render(
         request=request,
@@ -115,8 +130,8 @@ async def overview_overlay(
         tournament_id=tournament_id,
         **theme,
         font_family=f"'{font}', sans-serif",
-        logo_url=logo,
         lang=lang,
+        version=version,
     )
 
 
@@ -124,4 +139,10 @@ async def overview_overlay(
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request):
     tmpl = templates_env.get_template("dashboard.html")
-    return tmpl.render(request=request)
+    # Get version from package metadata
+    import importlib.metadata
+    try:
+        version = importlib.metadata.version("tourney-overlay")
+    except importlib.metadata.PackageNotFoundError:
+        version = "dev"
+    return tmpl.render(request=request, version=version)
