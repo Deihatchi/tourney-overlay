@@ -539,37 +539,33 @@ function updateUrls() {
         '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
         '&animation=' + a + '&lang=' + encodeURIComponent(lang);
     var overviewUrl = proto + '//' + host + '/overview?game=' + game +
-        '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
-        '&animation=' + a + '&tournament_id=' + tid +
-        '&lang=' + encodeURIComponent(lang);
-    var rlabel = res.replace('x', '\u00d7');
+            '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
+            '&animation=' + a + '&tournament_id=' + tid +
+            '&lang=' + encodeURIComponent(lang);
+        var rlabel = res.replace('x', '\u00d7');
 
-    sec.innerHTML =
-        '<div class="ul">' +
-            '<div class="ui"><span class="uc" id="scUrl">' + scoreUrl + '</span>' +
-                '<div class="ub">' +
-                    '<button class="btn btn-p btn-sm" onclick="previewUrl(\'' + scoreUrl.replace(/'/g, "\\'") + '\', 960, 200)">▶</button>' +
-                    '<button class="btn btn-s btn-sm" onclick="copyUrl(\'scUrl\')">📋</button>' +
-                '</div></div>' +
-            '<div class="ui"><span class="uc" id="noUrl">' + notifUrl + '</span>' +
-                            '<div class="ub">' +
-                                '<button class="btn btn-p btn-sm" onclick="previewUrl(\\'' + notifUrl.replace(/'/g, "\\'") + '\\', 500, 300)">▶</button>' +
-                                '<button class="btn btn-s btn-sm" onclick="copyUrl(\\'noUrl\\')">📋</button>' +
-                            '</div></div>' +
-                        '<div class="ui"><span class="uc" id="ovUrl">' + overviewUrl + '</span>' +
-                            '<div class="ub">' +
-                                '<button class="btn btn-p btn-sm" onclick="previewUrl(\\'' + overviewUrl.replace(/'/g, "\\'") + '\\', 1200, 600)">▶</button>' +
-                                '<button class="btn btn-s btn-sm" onclick="copyUrl(\\'ovUrl\\')">📋</button>' +
-                            '</div></div>' +
-        '</div>' +
-        '<div class="em" style="padding:12px;margin-top:10px;line-height:1.6;text-align:left;font-size:12px">' +
-            '\u26a1 Ajoute ces URLs dans OBS comme <strong>Source Navigateur</strong> en <strong>' + rlabel + '</strong>, fond transparent.</div>';
-}
-
-function previewUrl(url, w, h) {
-    window.open(url, 'sf_preview', 'width=' + w + ',height=' + h);
-}
-
+        var esc = function(s) { return s.replace(/'/g, "\\'"); };
+        sec.innerHTML =
+            '<div class="ul">' +
+                '<div class="ui"><span class="uc" id="scUrl">' + scoreUrl + '</span>' +
+                    '<div class="ub">' +
+                        '<button class="btn btn-p btn-sm" onclick="previewUrl(\'' + esc(scoreUrl) + '\', 960, 200)">▶</button>' +
+                        '<button class="btn btn-s btn-sm" onclick="copyUrl(\'scUrl\')">📋</button>' +
+                    '</div></div>' +
+                '<div class="ui"><span class="uc" id="noUrl">' + notifUrl + '</span>' +
+                    '<div class="ub">' +
+                        '<button class="btn btn-p btn-sm" onclick="previewUrl(\'' + esc(notifUrl) + '\', 500, 300)">▶</button>' +
+                        '<button class="btn btn-s btn-sm" onclick="copyUrl(\'noUrl\')">📋</button>' +
+                    '</div></div>' +
+                '<div class="ui"><span class="uc" id="ovUrl">' + overviewUrl + '</span>' +
+                    '<div class="ub">' +
+                        '<button class="btn btn-p btn-sm" onclick="previewUrl(\'' + esc(overviewUrl) + '\', 1200, 600)">▶</button>' +
+                        '<button class="btn btn-s btn-sm" onclick="copyUrl(\'ovUrl\')">📋</button>' +
+                    '</div></div>' +
+            '</div>' +
+            '<div class="em" style="padding:12px;margin-top:10px;line-height:1.6;text-align:left;font-size:12px">' +
+                '\u26a1 Ajoute ces URLs dans OBS comme <strong>Source Navigateur</strong> en <strong>' + rlabel + '</strong>, fond transparent.</div>';
+    }
 function copyUrl(id) {
     var text = document.getElementById(id).textContent;
     if (navigator.clipboard) {
