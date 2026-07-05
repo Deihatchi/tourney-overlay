@@ -2,6 +2,14 @@
 
 All notable changes to Tourney-Overlay will be documented in this format.
 
+## [1.2.2] - 2025-07-03
+
+### Fixed
+- **Dashboard JavaScript escaping** - Fixed `SyntaxError: Unexpected string` caused by malformed string escaping in `updateUrls()` function
+- **Undefined functions** - Fixed `connectApi`, `syncColor`, `syncHex`, `loadGames`, `updateUrls`, `applyStyle` being undefined due to JS parse error
+- **Color picker** - Color inputs now properly sync with hex fields
+- **API connection** - "Connecter" button now works correctly
+
 ## [1.2.1] - 2025-07-03
 
 ### Added
