@@ -1,28 +1,7 @@
-version: '3.8'
-
 services:
   tourney-overlay:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/deihatchi/tourney-overlay:latest
     container_name: tourney-overlay
     ports:
       - "8002:8000"
-    environment:
-      - SF_CHALLENGE_API_KEY=${CHALLENGE_API_KEY:-}
-      - SF_CHALLENGE_USERNAME=${CHALLENGE_USERNAME:-}
-      - SF_HOST=0.0.0.0
-      - SF_PORT=8000
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/status')"]
-      interval: 30s
-      timeout: 5s
-      start_period: 10s
-      retries: 3
-    networks:
-      - tourney-overlay-network
-
-networks:
-  tourney-overlay-network:
-    driver: bridge
