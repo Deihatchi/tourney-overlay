@@ -2,6 +2,14 @@
 
 All notable changes to Tourney-Overlay will be documented in this format.
 
+## [1.2.3] - 2025-07-05
+
+### Fixed
+- **All inline onclick handlers replaced** with event delegation — eliminates all JavaScript escaping issues (`SyntaxError: Unexpected string`)
+- **Bracket overlay** — removed "EN DIRECTE", miniaturized "LIVE", added round filtering (shows only current round), full FR/EN translations
+- **Preview/copy buttons** — restored functionality (were broken by `\\'` escaping)
+- **Score editor** — player names with apostrophes no longer break the modal
+
 ## [1.2.2] - 2025-07-03
 
 ### Fixed

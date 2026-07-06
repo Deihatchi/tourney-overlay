@@ -482,6 +482,9 @@ async function selectTourney(id) {
             var p1id = (m.player1 && m.player1.id) || 0;
             var p2id = (m.player2 && m.player2.id) || 0;
             var wid = m.winner_id || 0;
+            di.dataset.p1id = p1id;
+            di.dataset.p2id = p2id;
+            di.dataset.wid = wid;
             di.innerHTML =
                 '<div class="mp" onclick="selectMatch(' + m.id + ')">' +
                     (a1 ? '<img src="' + a1 + '" class="av">' : '<div class="av-ph"></div>') +
@@ -492,11 +495,7 @@ async function selectTourney(id) {
                 '</div>' +
                 '<div class="ms">' + s1 + '\u2014' + s2 + '</div>' +
                 '<div class="mst">' + si + ' ' + rd + '</div>' +
-                '<button class="btn btn-s btn-sm" onclick="event.stopPropagation();openScoreEditor(' +
-                    m.id + ',' + p1id + ',\'' + p1.replace(/'/g, "\\'") + '\',' +
-                    p2id + ',\'' + p2.replace(/'/g, "\\'") + '\',' +
-                    (s1 === '-' ? 0 : s1) + ',' + (s2 === '-' ? 0 : s2) + ',' + wid + ')" ' +
-                    'style="flex-shrink:0">✏️</button>';
+                '<button class="btn btn-s btn-sm edit-btn" style="flex-shrink:0">✏️</button>';
             mc.appendChild(di);
         });
         document.getElementById('polBtn').disabled = false;
@@ -544,25 +543,24 @@ function updateUrls() {
             '&lang=' + encodeURIComponent(lang);
         var rlabel = res.replace('x', '\u00d7');
 
-        var esc = function(s) { return s.replace(/'/g, "\\'"); };
         sec.innerHTML =
-            '<div class="ul">' +
-                '<div class="ui"><span class="uc" id="scUrl">' + scoreUrl + '</span>' +
-                    '<div class="ub">' +
-                        '<button class="btn btn-p btn-sm" onclick="previewUrl(\'' + esc(scoreUrl) + '\', 960, 200)">▶</button>' +
-                        '<button class="btn btn-s btn-sm" onclick="copyUrl(\'scUrl\')">📋</button>' +
-                    '</div></div>' +
-                '<div class="ui"><span class="uc" id="noUrl">' + notifUrl + '</span>' +
-                    '<div class="ub">' +
-                        '<button class="btn btn-p btn-sm" onclick="previewUrl(\'' + esc(notifUrl) + '\', 500, 300)">▶</button>' +
-                        '<button class="btn btn-s btn-sm" onclick="copyUrl(\'noUrl\')">📋</button>' +
-                    '</div></div>' +
-                '<div class="ui"><span class="uc" id="ovUrl">' + overviewUrl + '</span>' +
-                    '<div class="ub">' +
-                        '<button class="btn btn-p btn-sm" onclick="previewUrl(\'' + esc(overviewUrl) + '\', 1200, 600)">▶</button>' +
-                        '<button class="btn btn-s btn-sm" onclick="copyUrl(\'ovUrl\')">📋</button>' +
-                    '</div></div>' +
-            '</div>' +
+                    '<div class="ul">' +
+                        '<div class="ui"><span class="uc" id="scUrl">' + scoreUrl + '</span>' +
+                            '<div class="ub">' +
+                                '<button class="btn btn-p btn-sm preview-btn" data-w="960" data-h="200">▶</button>' +
+                                '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
+                            '</div></div>' +
+                        '<div class="ui"><span class="uc" id="noUrl">' + notifUrl + '</span>' +
+                            '<div class="ub">' +
+                                '<button class="btn btn-p btn-sm preview-btn" data-w="500" data-h="300">▶</button>' +
+                                '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
+                            '</div></div>' +
+                        '<div class="ui"><span class="uc" id="ovUrl">' + overviewUrl + '</span>' +
+                            '<div class="ub">' +
+                                '<button class="btn btn-p btn-sm preview-btn" data-w="1200" data-h="600">▶</button>' +
+                                '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
+                            '</div></div>' +
+                    '</div>' +
             '<div class="em" style="padding:12px;margin-top:10px;line-height:1.6;text-align:left;font-size:12px">' +
                 '\u26a1 Ajoute ces URLs dans OBS comme <strong>Source Navigateur</strong> en <strong>' + rlabel + '</strong>, fond transparent.</div>';
     }
@@ -579,8 +577,35 @@ function fallbackCopy(text) {
     var ta = document.createElement('textarea');
     ta.value = text; document.body.appendChild(ta); ta.select();
     document.execCommand('copy'); ta.remove();
-    toast('\uD83D\uDCCB', 'Copié', 's');
+    toast('📋', 'Copié', 's');
 }
+
+/* ── Delegated handlers for urlSec buttons ───────────────────────── */
+document.getElementById('urlSec').addEventListener('click', function(e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    var ui = btn.closest('.ui');
+    if (!ui) return;
+    var span = ui.querySelector('.uc');
+    if (!span) return;
+    var url = span.textContent;
+
+    if (btn.classList.contains('preview-btn')) {
+        var w = parseInt(btn.dataset.w) || 960;
+        var h = parseInt(btn.dataset.h) || 600;
+        window.open(url, 'overlay_preview', 'width=' + w + ',height=' + h + ',resizable=yes,scrollbars=yes');
+        return;
+    }
+
+    if (btn.classList.contains('copy-btn')) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(function() {
+                toast('📋', 'Copié', 's');
+            }).catch(function() { fallbackCopy(url); });
+        } else { fallbackCopy(url); }
+        return;
+    }
+});
 
 /* ── Polling ─────────────────────────────────────────────────────── */
 async function startPoll() {
@@ -706,20 +731,22 @@ function connectDashboardWs() {
         '</div>' +
         '<div class="ms">' + s1 + '\u2014' + s2 + '</div>' +
         '<div class="mst">' + si + ' ' + rd + '</div>' +
-        '<button class="btn btn-s btn-sm" onclick="event.stopPropagation();openScoreEditor(' +
-            match.id + ',' + p1id + ',\\'' + p1.replace(/'/g, "\\'") + '\\',' +
-            p2id + ',\\'' + p2.replace(/'/g, "\\'") + '\\',' +
-            (s1 === '-' ? 0 : s1) + ',' + (s2 === '-' ? 0 : s2) + ',' + wid + ')" ' +
-            'style="flex-shrink:0">✏️</button>';
+        '<button class="btn btn-s btn-sm edit-btn" style="flex-shrink:0">✏️</button>';
 
     if (existing) {
         existing.innerHTML = html;
         existing.className = 'mi';
+        existing.dataset.p1id = p1id;
+        existing.dataset.p2id = p2id;
+        existing.dataset.wid = wid;
         if (match.state === 'complete') existing.classList.add('s');
     } else {
         var di = document.createElement('div');
         di.className = 'mi';
         di.dataset.matchId = match.id;
+        di.dataset.p1id = p1id;
+        di.dataset.p2id = p2id;
+        di.dataset.wid = wid;
         di.innerHTML = html;
         if (match.state === 'complete') di.classList.add('s');
         mc.appendChild(di);
@@ -740,6 +767,27 @@ dashboardWs.onmessage = function(e) {
         setTimeout(function() { connectDashboardWs(); }, 3000);
     };
 }
+
+/* ── Delegated edit-btn handler ──────────────────────────────────── */
+document.getElementById('matchCont').addEventListener('click', function(e) {
+    var btn = e.target.closest('.edit-btn');
+    if (!btn) return;
+    var mi = btn.closest('.mi');
+    if (!mi) return;
+    var mid = parseInt(mi.dataset.matchId) || 0;
+    var p1id = parseInt(mi.dataset.p1id) || 0;
+    var p2id = parseInt(mi.dataset.p2id) || 0;
+    var wid = parseInt(mi.dataset.wid) || 0;
+    var spans = mi.querySelectorAll('.mp span:not(.mv)');
+    var p1n = spans.length > 0 ? spans[0].textContent : 'TBD';
+    var p2n = spans.length > 1 ? spans[1].textContent : 'TBD';
+    var msEl = mi.querySelector('.ms');
+    var scores = msEl ? msEl.textContent.split('\u2014') : ['-', '-'];
+    var s1 = scores[0] === '-' ? 0 : parseInt(scores[0]) || 0;
+    var s2 = scores.length > 1 && scores[1] === '-' ? 0 : (scores.length > 1 ? parseInt(scores[1]) || 0 : 0);
+    e.stopPropagation();
+    openScoreEditor(mid, p1id, p1n, p2id, p2n, s1, s2, wid);
+});
 
 /* ── Init ─────────────────────────────────────────────────────────── */
 loadLang();

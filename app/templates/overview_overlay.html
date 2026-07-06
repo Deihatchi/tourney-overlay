@@ -364,8 +364,8 @@ body {
 
 <div class="overlay-root">
     <div class="header">
-        <span class="hl">BRACKET</span> EN DIRECT
-        <span class="header-sub">LIVE</span>
+        <span class="hl">BRACKET</span>
+        <span class="header-sub" id="liveIndicator" style="font-size:10px;color:var(--primary);margin-left:0">LIVE</span>
     </div>
     <div class="header-line"></div>
     <div class="grid" id="matchGrid">
@@ -384,12 +384,14 @@ body {
     var lang = '{{ lang|default("fr") }}';
 
     var i18n = {
-        fr: { waiting: 'En attente des matchs...', completed: 'TERMINÉ', live: 'EN COURS', pending: 'EN ATTENTE', round: 'Round', winner: 'VAINQUEUR' },
-        en: { waiting: 'Waiting for matches...', completed: 'COMPLETED', live: 'LIVE', pending: 'PENDING', round: 'Round', winner: 'WINNER' }
+        fr: { waiting: 'En attente des matchs...', completed: 'TERMINÉ', live: 'EN COURS', pending: 'EN ATTENTE', round: 'Round', winner: 'VAINQUEUR', live_label: 'EN DIRECT' },
+        en: { waiting: 'Waiting for matches...', completed: 'COMPLETED', live: 'LIVE', pending: 'PENDING', round: 'Round', winner: 'WINNER', live_label: 'LIVE' }
     };
     var _t = i18n[lang] || i18n.fr;
+    var currentRound = 0;
 
     document.getElementById('emptyMsg').textContent = _t.waiting;
+    document.getElementById('liveIndicator').textContent = _t.live_label;
 
     function connectWs() {
         socket = new WebSocket(wsUrl);
@@ -397,7 +399,13 @@ body {
         socket.onmessage = function(e) {
             try {
                 var data = JSON.parse(e.data);
-                if (data.match) upsertCard(data.match);
+                if (data.match) {
+                    upsertCard(data.match);
+                    computeCurrentRound(Array.from(document.querySelectorAll('#matchGrid .card')).map(function(el) {
+                        return { round: parseInt(el.dataset.round) || 1, state: el.classList.contains('completed') ? 'complete' : (el.classList.contains('live') ? 'pending' : 'open') };
+                    }));
+                    applyRoundFilter();
+                }
             } catch(err) {}
         };
         socket.onclose = function() {
@@ -418,10 +426,51 @@ body {
             .then(function(data) {
                 var matches = Array.isArray(data) ? data : (data.matches || []);
                 if (matches.length > 0) {
+                    computeCurrentRound(matches);
                     matches.forEach(function(m) { upsertCard(m); });
+                    applyRoundFilter();
                 }
             })
             .catch(function() {});
+    }
+
+    function computeCurrentRound(matches) {
+        // Find the round with the highest absolute value that has active (non-complete) matches
+        var activeRounds = {};
+        matches.forEach(function(m) {
+            var r = Math.abs(m.round || 1);
+            if (m.state !== 'complete' && m.state !== 'completed') {
+                activeRounds[r] = (activeRounds[r] || 0) + 1;
+            }
+        });
+        var maxRound = 0;
+        Object.keys(activeRounds).forEach(function(r) {
+            var rn = parseInt(r);
+            if (rn > maxRound) maxRound = rn;
+        });
+        if (maxRound === 0) {
+            // All matches completed — show the final round (lowest abs round)
+            var allRounds = {};
+            matches.forEach(function(m) {
+                allRounds[Math.abs(m.round || 1)] = true;
+            });
+            var minR = 999;
+            Object.keys(allRounds).forEach(function(r) {
+                var rn = parseInt(r);
+                if (rn < minR) minR = rn;
+            });
+            maxRound = minR === 999 ? 1 : minR;
+        }
+        currentRound = maxRound;
+    }
+
+    function applyRoundFilter() {
+        var grid = document.getElementById('matchGrid');
+        Array.from(grid.children).forEach(function(child) {
+            if (child.classList.contains('empty-state')) return;
+            var r = parseInt(child.dataset.round) || 1;
+            child.style.display = (r === currentRound) ? '' : 'none';
+        });
     }
 
     function upsertCard(m) {
@@ -435,6 +484,7 @@ body {
         var card = document.createElement('div');
         card.className = 'card';
         card.id = 'mc-' + m.id;
+        card.dataset.round = Math.abs(m.round || 1);
         if (m.state === 'complete') card.classList.add('completed');
         else if (m.state === 'pending' || m.state === 'open') card.classList.add('live');
 
