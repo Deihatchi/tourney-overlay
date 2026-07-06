@@ -164,6 +164,10 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.card-player.card-winner {
+    color: var(--tertiary);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--tertiary) 60%, transparent);
+}
 
 .card-score {
     font-family: 'Orbitron', monospace;
@@ -490,7 +494,7 @@ body {
             else if (m.player2 && m.player2.is_winner) winner = m.player2.name;
             statusText = _t.completed;
             if (winner) {
-                winnerBadge = '<span class="winner-badge">' + _t.winner + ': ' + winner + '</span>';
+                winnerBadge = '<span class="winner-badge">🏆 ' + _t.winner + ': ' + winner + '</span>';
             }
         } else if (m.state === 'pending') statusText = _t.live;
         else statusText = _t.pending;
@@ -500,9 +504,9 @@ body {
         card.innerHTML =
             '<div class="card-round">' + _t.round + ' ' + roundNum + '</div>' +
             '<div class="card-players">' +
-                '<div class="card-player">' + p1.replace(/</g, '<') + '</div>' +
+                '<div class="card-player' + (m.player1 && m.player1.is_winner ? ' card-winner' : '') + '">' + p1.replace(/</g, '<') + '</div>' +
                 '<div class="card-score">' + s1 + '–' + s2 + '</div>' +
-                '<div class="card-player">' + p2.replace(/</g, '<') + '</div>' +
+                '<div class="card-player' + (m.player2 && m.player2.is_winner ? ' card-winner' : '') + '">' + p2.replace(/</g, '<') + '</div>' +
             '</div>' +
             '<div class="card-status">' + statusText + winnerBadge + '</div>';
 

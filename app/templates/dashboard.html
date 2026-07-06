@@ -44,6 +44,9 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 .tlist::-webkit-scrollbar{width:4px}
 .tlist::-webkit-scrollbar-thumb{background:var(--sf3);border-radius:2px}
 .ti{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.02);transition:all 0.15s}
+.tp{display:flex;align-items:center;gap:6px;min-width:60px}
+.tp-bar{height:4px;background:linear-gradient(90deg,var(--p),var(--s));border-radius:2px;transition:width 0.5s;min-width:2px}
+.tp-lbl{font-family:Orbitron,monospace;font-size:10px;color:var(--di);white-space:nowrap}
 .ti:last-child{border-bottom:none}
 .ti:hover{background:rgba(255,70,85,0.03)}
 .ti.a{background:rgba(255,70,85,0.06);border-left:3px solid var(--p)}
@@ -449,8 +452,9 @@ async function loadTourneys() {
             div.onclick = function() { selectTourney(item.id); };
             div.innerHTML = '<div><div class="tn">' + item.name + '</div><div class="tm">' +
                 (item.game_name || '?') + ' \u00b7 ' + item.participants_count + ' joueurs</div></div>' +
-                '<div style="font-family:Orbitron,monospace;font-size:10px;color:var(--di)">' +
-                Math.round(item.progress) + '%</div>';
+                '<div class="tp"><div class="tp-bar" style="width:' +
+                Math.round(item.progress) + '%"></div><span class="tp-lbl">' +
+                Math.round(item.progress) + '%</span></div>';
             el.appendChild(div);
         });
     } catch(e) { el.innerHTML = '<div class="em" style="color:var(--p)">' + e.message + '</div>'; }

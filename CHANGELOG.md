@@ -2,6 +2,16 @@
 
 All notable changes to Tourney-Overlay will be documented in this format.
 
+## [1.2.6] - 2026-07-06
+
+### Added
+- **🏆 Winner gold highlight in bracket overlay** — winner's name glows in gold (tertiary color) directly on the match card, not just in the badge
+- **Completion percentage bar** in tournament list — visual progress bar with % label for each tournament
+
+### Fixed
+- **Player name font consistency** — score overlay now uses `Rajdhani` (like bracket/recap/notification) instead of `Orbitron` for all player names
+- **Completion percentage** — now calculated from actual match data (completed/total), not Challonge's unreliable `progress` field
+
 ## [1.2.5] - 2026-07-06
 
 ### Added

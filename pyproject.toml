@@ -1,6 +1,6 @@
 [project]
 name = "tourney-overlay"
-version = "1.2.5"
+version = "1.2.6"
 description = "Tournament overlay system for OBS with Challonge integration"
 requires-python = ">=3.11"
 dependencies = [

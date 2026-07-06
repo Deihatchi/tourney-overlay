@@ -106,16 +106,30 @@ def fetch_tournaments(api_key: str, username: str = "") -> list[TournamentInfo]:
     if isinstance(raw, list):
         for item in raw:
             t = item.get("tournament", {})
+            state = t.get("state", "")
+            # Calculate real completion percentage from matches
+            comp = 0.0
+            if state == "complete":
+                comp = 100.0
+            elif state in ("underway", "in_progress"):
+                try:
+                    t_matches = fetch_matches(api_key, t["id"], username)
+                    total = len(t_matches)
+                    if total > 0:
+                        completed = sum(1 for m in t_matches if m.state in ("complete", "completed"))
+                        comp = round(completed / total * 100, 1)
+                except Exception:
+                    comp = float(t.get("progress", 0) or 0)
             tournaments.append(
                 TournamentInfo(
                     id=t.get("id", 0),
                     name=t.get("name", ""),
                     url=t.get("full_challonge_url", ""),
                     game_name=t.get("game_name") or "",
-                    state=t.get("state", ""),
+                    state=state,
                     tournament_type=t.get("tournament_type", "single elimination"),
                     participants_count=t.get("participants_count", 0),
-                    progress=float(t.get("progress", 0) or 0),
+                    progress=comp,
                 )
             )
     return tournaments
