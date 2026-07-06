@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="{{ lang|default("fr") }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SF Overlay — Récap</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary: {{ primary|default("#ff4655") }};
+    --secondary: {{ secondary|default("#00d4ff") }};
+    --tertiary: {{ tertiary|default("#ffd700") }};
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: transparent !important;
+    overflow: hidden;
+    font-family: {{ font_family|default("'Rajdhani', sans-serif") }};
+    width: 1920px;
+    height: 1080px;
+}
+
+.overlay-root {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 30px 40px;
+    background: linear-gradient(180deg, rgba(5,5,15,0.85) 0%, rgba(5,5,15,0.5) 100%);
+    animation: {{ animation|default("slide") }} 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 24px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: #fff;
+    animation: headerFade 1s ease forwards;
+}
+
+@keyframes headerFade {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.header .hl {
+    color: var(--primary);
+    text-shadow: 0 0 30px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.header-sub {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 3px;
+    color: var(--secondary);
+}
+
+.header-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), transparent);
+    margin-bottom: 20px;
+    border: none;
+}
+
+.scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+
+.scroll-area::-webkit-scrollbar { width: 4px; }
+.scroll-area::-webkit-scrollbar-track { background: transparent; }
+.scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+.round-group {
+    margin-bottom: 6px;
+}
+
+.round-header {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--secondary);
+    text-transform: uppercase;
+    padding: 4px 12px;
+    background: rgba(0, 212, 255, 0.06);
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.match-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    transition: background 0.3s;
+    gap: 8px;
+}
+
+.match-row.completed {
+    background: rgba(0, 255, 100, 0.04);
+    border-left: 2px solid rgba(0, 255, 100, 0.3);
+}
+
+.match-row.live {
+    background: rgba(255, 70, 85, 0.04);
+    border-left: 2px solid var(--primary);
+}
+
+.match-p1, .match-p2 {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.match-p2 {
+    text-align: right;
+}
+
+.match-vs {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    margin: 0 8px;
+}
+
+.match-score {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--secondary);
+    min-width: 50px;
+    text-align: center;
+}
+
+.match-winner {
+    color: var(--tertiary);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--tertiary) 40%, transparent);
+}
+
+.match-status {
+    font-family: 'Orbitron', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+    min-width: 60px;
+    text-align: center;
+}
+
+.match-status.completed { color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+.match-status.live { color: var(--primary); border: 1px solid rgba(255, 70, 85, 0.3); }
+.match-status.pending { color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.1); }
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255,255,255,0.3);
+    font-size: 18px;
+    letter-spacing: 3px;
+}
+
+.empty-state .big {
+    font-family: 'Orbitron', monospace;
+    font-size: 48px;
+    color: var(--primary);
+    margin-bottom: 16px;
+}
+
+</style>
+</head>
+<body>
+<div class="overlay-root">
+    <div class="header">
+        <span class="hl">MATCHES</span>
+        <span class="header-sub" id="liveIndicator">{{ "RÉCAP" if lang == "fr" else "RECAP" }}</span>
+    </div>
+    <div class="header-line"></div>
+    <div class="scroll-area" id="matchList">
+        <div class="empty-state">
+            <div class="big">VS</div>
+            <div id="emptyMsg">{{ "En attente des matchs..." if lang == "fr" else "Waiting for matches..." }}</div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    var tourneyId = {{ tournament_id|default("0") }};
+    var i18n = {
+        fr: {
+            title: "RÉCAP",
+            waiting: "En attente des matchs...",
+            round: "Round",
+            completed: "TERMINÉ",
+            live: "EN COURS",
+            pending: "EN ATTENTE",
+            winner: "VAINQUEUR",
+            vs: "VS"
+        },
+        en: {
+            title: "RECAP",
+            waiting: "Waiting for matches...",
+            round: "Round",
+            completed: "COMPLETED",
+            live: "LIVE",
+            pending: "PENDING",
+            winner: "WINNER",
+            vs: "VS"
+        }
+    };
+    var lang = "{{ lang|default("fr") }}";
+    var _t = i18n[lang] || i18n.fr;
+
+    document.getElementById('emptyMsg').textContent = _t.waiting;
+
+    function renderMatches(matches) {
+        var list = document.getElementById('matchList');
+        list.innerHTML = '';
+
+        if (!matches || matches.length === 0) {
+            list.innerHTML = '<div class="empty-state"><div class="big">VS</div><div>' + _t.waiting + '</div></div>';
+            return;
+        }
+
+        // Group by round
+        var groups = {};
+        matches.forEach(function(m) {
+            var r = Math.abs(m.round || 1) * (m.round < 0 ? -1 : 1);
+            var gi = Math.abs(r);
+            if (!groups[gi]) groups[gi] = [];
+            groups[gi].push(m);
+        });
+
+        // Sort rounds descending (last round first)
+        var roundNums = Object.keys(groups).map(Number).sort(function(a, b) { return b - a; });
+
+        roundNums.forEach(function(rn) {
+            var ms = groups[rn];
+
+            // Section header
+            var hdr = document.createElement('div');
+            hdr.className = 'round-header';
+            hdr.textContent = _t.round + ' ' + rn;
+            list.appendChild(hdr);
+
+            var groupDiv = document.createElement('div');
+            groupDiv.className = 'round-group';
+
+            // Sort matches by ID for consistent order
+            ms.sort(function(a, b) { return a.id - b.id; });
+
+            ms.forEach(function(m) {
+                var p1 = (m.player1 && m.player1.name) || 'TBD';
+                var p2 = (m.player2 && m.player2.name) || 'TBD';
+                var s1 = (m.player1 && m.player1.score != null) ? m.player1.score : '-';
+                var s2 = (m.player2 && m.player2.score != null) ? m.player2.score : '-';
+                var isComplete = m.state === 'complete' || m.state === 'completed';
+                var isLive = m.state === 'pending';
+                var winnerId = m.winner_id || 0;
+
+                var row = document.createElement('div');
+                row.className = 'match-row';
+                if (isComplete) row.classList.add('completed');
+                else if (isLive) row.classList.add('live');
+
+                var p1wrap = document.createElement('div');
+                p1wrap.className = 'match-p1';
+                p1wrap.textContent = p1;
+
+                var scoreWrap = document.createElement('div');
+                scoreWrap.className = 'match-score' + (winnerId ? ' match-winner' : '');
+                // Highlight winner score
+                if (winnerId && m.player1 && m.player1.id === winnerId) {
+                    scoreWrap.innerHTML = '<span style="color:var(--tertiary)">' + s1 + '</span><span style="color:var(--secondary)">–</span><span>' + s2 + '</span>';
+                } else if (winnerId && m.player2 && m.player2.id === winnerId) {
+                    scoreWrap.innerHTML = '<span>' + s1 + '</span><span style="color:var(--secondary)">–</span><span style="color:var(--tertiary)">' + s2 + '</span>';
+                } else {
+                    scoreWrap.innerHTML = '<span>' + s1 + '</span><span style="color:var(--secondary)">–</span><span>' + s2 + '</span>';
+                }
+
+                var p2wrap = document.createElement('div');
+                p2wrap.className = 'match-p2';
+                p2wrap.textContent = p2;
+
+                var statusEl = document.createElement('div');
+                statusEl.className = 'match-status';
+                if (isComplete) {
+                    statusEl.classList.add('completed');
+                    statusEl.textContent = _t.completed;
+                } else if (isLive) {
+                    statusEl.classList.add('live');
+                    statusEl.textContent = _t.live;
+                } else {
+                    statusEl.classList.add('pending');
+                    statusEl.textContent = _t.pending;
+                }
+
+                row.appendChild(p1wrap);
+                row.appendChild(scoreWrap);
+                row.appendChild(p2wrap);
+                row.appendChild(statusEl);
+                groupDiv.appendChild(row);
+            });
+
+            list.appendChild(groupDiv);
+        });
+    }
+
+    // Load matches from API
+    if (tourneyId) {
+        fetch('/api/tournaments/' + tourneyId + '/matches')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var matches = Array.isArray(data) ? data : (data.matches || []);
+                renderMatches(matches);
+            })
+            .catch(function() {});
+    }
+})();
+</script>
+</body>
+</html>

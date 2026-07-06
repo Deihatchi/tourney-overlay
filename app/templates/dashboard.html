@@ -65,6 +65,8 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 .ub{display:flex;gap:6px;flex-shrink:0}
 .ub .btn{padding:10px 20px;font-size:14px;letter-spacing:1px;flex:1}
 #urlSec .uc{display:none}
+.ol{margin:8px 0 2px 0}
+.ol-lbl{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;color:var(--s);text-transform:uppercase}
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:600px){.sg{grid-template-columns:1fr}}
 .toast{position:fixed;bottom:30px;right:30px;background:var(--sf);border-left:4px solid var(--p);border-radius:10px;padding:16px 20px;box-shadow:0 20px 60px rgba(0,0,0,0.6);z-index:999;transform:translateX(120%);transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);min-width:300px;backdrop-filter:blur(20px)}
@@ -483,6 +485,11 @@ async function selectTourney(id) {
             var p1id = (m.player1 && m.player1.id) || 0;
             var p2id = (m.player2 && m.player2.id) || 0;
             var wid = m.winner_id || 0;
+            var wn = '';
+            if (wid) {
+                if (m.player1 && m.player1.id === wid) wn = m.player1.name || '';
+                else if (m.player2 && m.player2.id === wid) wn = m.player2.name || '';
+            }
             di.dataset.p1id = p1id;
             di.dataset.p2id = p2id;
             di.dataset.wid = wid;
@@ -495,8 +502,8 @@ async function selectTourney(id) {
                     (a2 ? '<img src="' + a2 + '" class="av">' : '<div class="av-ph"></div>') +
                 '</div>' +
                 '<div class="ms">' + s1 + '—' + s2 + '</div>' +
-                        '<div class="mst">' + si + ' ' + rd + (wid ? ' 🏆' : '') + '</div>' +
-                        '<button class="btn btn-s btn-sm edit-btn" style="flex-shrink:0">✏️</button>';
+                '<div class="mst">' + si + ' ' + rd + (wid ? ' 🏆 ' + wn : '') + '</div>' +
+                '<button class="btn btn-s btn-sm edit-btn" style="flex-shrink:0">✏️</button>';
             mc.appendChild(di);
         });
         document.getElementById('polBtn').disabled = false;
@@ -542,23 +549,36 @@ function updateUrls() {
             '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
             '&animation=' + a + '&tournament_id=' + tid +
             '&lang=' + encodeURIComponent(lang);
+    var recapUrl = proto + '//' + host + '/overlay/recap?game=' + game +
+            '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
+            '&animation=' + a + '&tournament_id=' + tid +
+            '&lang=' + encodeURIComponent(lang);
         var rlabel = res.replace('x', '\u00d7');
 
         sec.innerHTML =
                     '<div class="ul">' +
+                        '<div class="ol"><span class="ol-lbl">' + t('bracket_overlay') + '</span></div>' +
+                        '<div class="ui"><span class="uc" id="ovUrl">' + overviewUrl + '</span>' +
+                            '<div class="ub">' +
+                                '<button class="btn btn-p btn-sm preview-btn" data-w="1200" data-h="600">▶</button>' +
+                                '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
+                            '</div></div>' +
+                        '<div class="ol"><span class="ol-lbl">' + t('recap_overlay') + '</span></div>' +
+                        '<div class="ui"><span class="uc" id="rcUrl">' + recapUrl + '</span>' +
+                            '<div class="ub">' +
+                                '<button class="btn btn-p btn-sm preview-btn" data-w="1200" data-h="600">▶</button>' +
+                                '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
+                            '</div></div>' +
+                        '<div class="ol"><span class="ol-lbl">' + t('score_overlay') + '</span></div>' +
                         '<div class="ui"><span class="uc" id="scUrl">' + scoreUrl + '</span>' +
                             '<div class="ub">' +
                                 '<button class="btn btn-p btn-sm preview-btn" data-w="960" data-h="200">▶</button>' +
                                 '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
                             '</div></div>' +
+                        '<div class="ol"><span class="ol-lbl">' + t('notification_overlay') + '</span></div>' +
                         '<div class="ui"><span class="uc" id="noUrl">' + notifUrl + '</span>' +
                             '<div class="ub">' +
                                 '<button class="btn btn-p btn-sm preview-btn" data-w="500" data-h="300">▶</button>' +
-                                '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
-                            '</div></div>' +
-                        '<div class="ui"><span class="uc" id="ovUrl">' + overviewUrl + '</span>' +
-                            '<div class="ub">' +
-                                '<button class="btn btn-p btn-sm preview-btn" data-w="1200" data-h="600">▶</button>' +
                                 '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
                             '</div></div>' +
                     '</div>' +
@@ -721,6 +741,11 @@ function connectDashboardWs() {
     var p1id = (match.player1 && match.player1.id) || 0;
     var p2id = (match.player2 && match.player2.id) || 0;
     var wid = match.winner_id || 0;
+    var wn = '';
+    if (wid) {
+        if (match.player1 && match.player1.id === wid) wn = match.player1.name || '';
+        else if (match.player2 && match.player2.id === wid) wn = match.player2.name || '';
+    }
 
     var html =
         '<div class="mp" onclick="selectMatch(' + match.id + ')">' +
@@ -731,7 +756,7 @@ function connectDashboardWs() {
             (a2 ? '<img src="' + a2 + '" class="av">' : '<div class="av-ph"></div>') +
         '</div>' +
         '<div class="ms">' + s1 + '—' + s2 + '</div>' +
-                '<div class="mst">' + si + ' ' + rd + (wid ? ' 🏆' : '') + '</div>' +
+                '<div class="mst">' + si + ' ' + rd + (wid ? ' 🏆 ' + wn : '') + '</div>' +
                 '<button class="btn btn-s btn-sm edit-btn" style="flex-shrink:0">✏️</button>';
 
     if (existing) {

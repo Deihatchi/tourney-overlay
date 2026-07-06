@@ -2,6 +2,21 @@
 
 All notable changes to Tourney-Overlay will be documented in this format.
 
+## [1.2.5] - 2026-07-06
+
+### Added
+- **Winner name displayed** in dashboard match cards (trophy + player name, not just trophy)
+- **Overlay type labels** in dashboard (Bracket, Récap, Score, Notification) with FR/EN translations
+- **Recap overlay** (`/overlay/recap`) — all tournament matches in reverse round order (latest at top)
+- **Global match state tracking** in bracket overlay — WS updates correctly recalculate the current round
+
+### Fixed
+- **Bracket round logic** — now shows the lowest round with active matches (was showing the highest), only advances when all matches in the current round are completed
+- **WS round recalculation** — uses stored match data instead of DOM elements for accurate results
+
+### Changed
+- **All matches completed** state — bracket now shows the final round (highest) instead of the first
+
 ## [1.2.4] - 2025-07-06
 
 ### Added

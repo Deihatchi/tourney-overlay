@@ -371,6 +371,7 @@ body {
     };
     var _t = i18n[lang] || i18n.fr;
     var currentRound = 0;
+    var allMatches = [];
 
     document.getElementById('emptyMsg').textContent = _t.waiting;
     document.getElementById('liveIndicator').textContent = _t.live_label;
@@ -383,9 +384,14 @@ body {
                 var data = JSON.parse(e.data);
                 if (data.match) {
                     upsertCard(data.match);
-                    computeCurrentRound(Array.from(document.querySelectorAll('#matchGrid .card')).map(function(el) {
-                        return { round: parseInt(el.dataset.round) || 1, state: el.classList.contains('completed') ? 'complete' : (el.classList.contains('live') ? 'pending' : 'open') };
-                    }));
+                    // Update stored match in array
+                    for (var i = 0; i < allMatches.length; i++) {
+                        if (allMatches[i].id === data.match.id) {
+                            allMatches[i] = data.match;
+                            break;
+                        }
+                    }
+                    computeCurrentRound(allMatches);
                     applyRoundFilter();
                 }
             } catch(err) {}
@@ -408,7 +414,8 @@ body {
             .then(function(data) {
                 var matches = Array.isArray(data) ? data : (data.matches || []);
                 if (matches.length > 0) {
-                    computeCurrentRound(matches);
+                    allMatches = matches;
+                    computeCurrentRound(allMatches);
                     matches.forEach(function(m) { upsertCard(m); });
                     applyRoundFilter();
                 }
@@ -428,13 +435,12 @@ body {
                 activeRounds[r] = (activeRounds[r] || 0) + 1;
             }
         });
-        var maxRound = 0;
-        Object.keys(activeRounds).forEach(function(r) {
-            var rn = parseInt(r);
-            if (rn > maxRound) maxRound = rn;
-        });
-        if (maxRound === 0) {
-            // All matches completed — show the final round (lowest abs round)
+        var activeKeys = Object.keys(activeRounds).map(Number);
+        if (activeKeys.length > 0) {
+            // Show the LOWEST round with active matches (not the highest)
+            currentRound = Math.min.apply(null, activeKeys);
+        } else {
+            // All matches completed — show the final round (highest abs round)
             var allRounds = {};
             matches.forEach(function(m) {
                 var p1 = m.player1 && m.player1.name && m.player1.name !== 'TBD' && m.player1.name !== '?';
@@ -442,14 +448,9 @@ body {
                 if (!p1 || !p2) return;
                 allRounds[Math.abs(m.round || 1)] = true;
             });
-            var minR = 999;
-            Object.keys(allRounds).forEach(function(r) {
-                var rn = parseInt(r);
-                if (rn < minR) minR = rn;
-            });
-            maxRound = minR === 999 ? 1 : minR;
+            var roundKeys = Object.keys(allRounds).map(Number);
+            currentRound = roundKeys.length > 0 ? Math.max.apply(null, roundKeys) : 1;
         }
-        currentRound = maxRound;
     }
 
     function applyRoundFilter() {

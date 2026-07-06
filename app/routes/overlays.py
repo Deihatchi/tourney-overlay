@@ -129,6 +129,33 @@ async def overlay_notification(
     )
 
 
+@router.get("/overlay/recap", response_class=HTMLResponse)
+async def overlay_recap(
+    request: Request,
+    tournament_id: int = Query(default=0),
+    game: str = Query(default="sf6"),
+    primary: str = Query(default="#ff4655"),
+    secondary: str = Query(default="#00d4ff"),
+    tertiary: str = Query(default="#ffd700"),
+    animation: str = Query(default="slide"),
+    font: str = Query(default="Rajdhani"),
+    lang: str = Query(default="fr"),
+):
+    theme = _resolve_theme(game, primary, secondary, tertiary, animation)
+    tmpl = templates_env.get_template("overlay_recap.html")
+    return tmpl.render(
+        request=request,
+        game=game,
+        primary=theme["primary"],
+        secondary=theme["secondary"],
+        tertiary=theme["tertiary"],
+        animation=theme["animation"],
+        font_family=f"'{font}', sans-serif",
+        lang=lang,
+        tournament_id=tournament_id,
+    )
+
+
 @router.get("/overview", response_class=HTMLResponse)
 async def overview_overlay(
     request: Request,
