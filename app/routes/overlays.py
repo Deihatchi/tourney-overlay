@@ -129,6 +129,61 @@ async def overlay_notification(
     )
 
 
+@router.get("/overlay/score-below", response_class=HTMLResponse)
+async def overlay_score_below(
+    request: Request,
+    match_id: int = Query(default=0, description="Match ID"),
+    tournament_id: int = Query(default=0, description="Tournament ID"),
+    game: str = Query(default="sf6", description="Game: sf6, tekken8, custom..."),
+    primary: str = Query(default="#ff4655", description="Primary color (hex)"),
+    secondary: str = Query(default="#00d4ff", description="Secondary color (hex)"),
+    tertiary: str = Query(default="#ffd700", description="Tertiary/winner color (hex)"),
+    animation: str = Query(default="fadeIn", description="Animation style"),
+    font: str = Query(default="Orbitron", description="Font family"),
+    offset_y: int = Query(default=180, description="Bottom offset in pixels"),
+    res: str = Query(default="1920x1080", description="Resolution"),
+    lang: str = Query(default="fr", description="Language"),
+):
+    theme = _resolve_theme(game, primary, secondary, tertiary, animation)
+    # Fetch initial match data from API
+    player1_name = ""
+    player2_name = ""
+    player1_score = ""
+    player2_score = ""
+    try:
+        from app.services.tournament import fetch_matches, get_api_key
+        key = get_api_key()
+        if key:
+            matches = fetch_matches(key, tournament_id)
+            for m in matches:
+                if m.id == match_id:
+                    if m.player1:
+                        player1_name = m.player1.name or ""
+                        player1_score = str(m.player1.score) if m.player1.score is not None else ""
+                    if m.player2:
+                        player2_name = m.player2.name or ""
+                        player2_score = str(m.player2.score) if m.player2.score is not None else ""
+                    break
+    except Exception:
+        pass
+
+    tmpl = templates_env.get_template("overlay_score_below.html")
+    return tmpl.render(
+        request=request,
+        match_id=match_id,
+        tournament_id=tournament_id,
+        game=game,
+        **theme,
+        offset_y=offset_y,
+        font_family=f"'Orbitron', monospace",
+        lang=lang,
+        player1_name=player1_name,
+        player2_name=player2_name,
+        player1_score=player1_score,
+        player2_score=player2_score,
+    )
+
+
 @router.get("/overlay/recap", response_class=HTMLResponse)
 async def overlay_recap(
     request: Request,

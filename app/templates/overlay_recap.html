@@ -137,6 +137,14 @@ body {
     text-align: right;
 }
 
+.match-p1.winner, .match-p2.winner {
+    color: var(--tertiary);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--tertiary) 50%, transparent);
+    background: rgba(255, 215, 0, 0.08);
+    border-radius: 4px;
+    padding: 2px 8px;
+}
+
 .match-vs {
     font-family: 'Orbitron', monospace;
     font-size: 10px;
@@ -286,7 +294,7 @@ body {
                 else if (isLive) row.classList.add('live');
 
                 var p1wrap = document.createElement('div');
-                p1wrap.className = 'match-p1';
+                p1wrap.className = 'match-p1' + (winnerId && m.player1 && m.player1.id === winnerId ? ' winner' : '');
                 p1wrap.textContent = p1;
 
                 var scoreWrap = document.createElement('div');
@@ -301,7 +309,7 @@ body {
                 }
 
                 var p2wrap = document.createElement('div');
-                p2wrap.className = 'match-p2';
+                p2wrap.className = 'match-p2' + (winnerId && m.player2 && m.player2.id === winnerId ? ' winner' : '');
                 p2wrap.textContent = p2;
 
                 var statusEl = document.createElement('div');

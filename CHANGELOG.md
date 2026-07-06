@@ -2,6 +2,15 @@
 
 All notable changes to Tourney-Overlay will be documented in this format.
 
+## [1.2.8] - 2026-07-06
+
+### Added
+- **Score Below overlay** (`/overlay/score-below`) — two independent player blocks positioned under health bars, with avatar + name + score + character, real-time WebSocket updates, winner name highlighted in gold
+- **Score Below URL** in dashboard — new "SCORE BELOW" section with preview/copy buttons
+
+### Changed
+- **Winner in recap overlay** — winner name now highlighted in gold (tertiary) with subtle yellow background, only name changes color (not the block)
+
 ## [1.2.7] - 2026-07-06
 
 ### Changed

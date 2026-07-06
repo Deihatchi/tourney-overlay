@@ -554,14 +554,18 @@ function updateUrls() {
             '&animation=' + a + '&tournament_id=' + tid +
             '&lang=' + encodeURIComponent(lang);
     var recapUrl = proto + '//' + host + '/overlay/recap?game=' + game +
-            '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
-            '&animation=' + a + '&tournament_id=' + tid +
-            '&lang=' + encodeURIComponent(lang);
-        var rlabel = res.replace('x', '\u00d7');
+                '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
+                '&animation=' + a + '&tournament_id=' + tid +
+                '&lang=' + encodeURIComponent(lang);
+        var scoreBelowUrl = proto + '//' + host + '/overlay/score-below?game=' + game +
+                '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
+                '&animation=' + a + '&match_id=' + mid + '&tournament_id=' + tid +
+                '&lang=' + encodeURIComponent(lang) + '&offset_y=180';
+            var rlabel = res.replace('x', '\u00d7');
 
-        sec.innerHTML =
-                    '<div class="ul">' +
-                        '<div class="ol"><span class="ol-lbl">' + t('bracket_overlay') + '</span></div>' +
+            sec.innerHTML =
+                        '<div class="ul">' +
+                            '<div class="ol"><span class="ol-lbl">' + t('bracket_overlay') + '</span></div>' +
                         '<div class="ui"><span class="uc" id="ovUrl">' + overviewUrl + '</span>' +
                             '<div class="ub">' +
                                 '<button class="btn btn-p btn-sm preview-btn" data-w="1200" data-h="600">▶</button>' +
@@ -577,6 +581,12 @@ function updateUrls() {
                         '<div class="ui"><span class="uc" id="scUrl">' + scoreUrl + '</span>' +
                             '<div class="ub">' +
                                 '<button class="btn btn-p btn-sm preview-btn" data-w="960" data-h="200">▶</button>' +
+                                '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
+                            '</div></div>' +
+                        '<div class="ol"><span class="ol-lbl">SCORE BELOW</span></div>' +
+                        '<div class="ui"><span class="uc" id="sbUrl">' + scoreBelowUrl + '</span>' +
+                            '<div class="ub">' +
+                                '<button class="btn btn-p btn-sm preview-btn" data-w="960" data-h="80">▶</button>' +
                                 '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
                             '</div></div>' +
                         '<div class="ol"><span class="ol-lbl">' + t('notification_overlay') + '</span></div>' +

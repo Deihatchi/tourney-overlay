@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="{{ lang|default("fr") }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SF Overlay — Score Below</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary: {{ primary|default("#ff4655") }};
+    --secondary: {{ secondary|default("#00d4ff") }};
+    --tertiary: {{ tertiary|default("#ffd700") }};
+    --offset: {{ offset_y|default("180") }}px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: transparent !important;
+    overflow: hidden;
+    font-family: 'Orbitron', monospace;
+    width: 1920px;
+    height: 1080px;
+}
+
+/* ====== PLAYER BLOCK ====== */
+.p-block {
+    position: absolute;
+    top: var(--offset);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: rgba(10, 10, 20, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    pointer-events: none;
+}
+
+.p-block.p1 {
+    left: 60px;
+    border-left: 2px solid var(--primary);
+}
+
+.p-block.p2 {
+    right: 60px;
+    border-right: 2px solid var(--secondary);
+}
+
+/* ---- AVATAR ---- */
+.p-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.1);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.p-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.p-avatar-ph {
+    font-size: 14px;
+    color: rgba(255,255,255,0.15);
+}
+
+/* ---- NAME ---- */
+.p-name {
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+    transition: color 0.3s, text-shadow 0.3s;
+}
+
+/* WINNER: only name changes color, not the block */
+.p-block.p1 .p-name.winner {
+    color: var(--tertiary);
+    text-shadow: 0 0 15px color-mix(in srgb, var(--tertiary) 50%, transparent);
+}
+.p-block.p2 .p-name.winner {
+    color: var(--tertiary);
+    text-shadow: 0 0 15px color-mix(in srgb, var(--tertiary) 50%, transparent);
+}
+
+/* ---- SCORE ---- */
+.p-score {
+    font-weight: 900;
+    font-size: 28px;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 0 12px color-mix(in srgb, var(--primary) 40%, transparent);
+    min-width: 32px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.p-block.p1 .p-score { color: var(--primary); }
+.p-block.p2 .p-score { color: var(--secondary); }
+
+.p-score.flash {
+    animation: scorePop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scorePop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.35); filter: brightness(1.5); }
+    100% { transform: scale(1); }
+}
+
+/* ---- SUB INFO ---- */
+.p-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 1px;
+    font-weight: 400;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+/* ---- ANIMATION ---- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- Player 1 Block -->
+<div class="p-block p1" id="p1Block" style="animation:slideLeft 0.6s cubic-bezier(0.16,1,0.3,1) forwards;">
+    <div class="p-avatar" id="p1Avatar"><div class="p-avatar-ph">?</div></div>
+    <div>
+        <div class="p-name" id="p1Name">JOUEUR 1</div>
+        <div class="p-sub" id="p1Info">---</div>
+    </div>
+    <div class="p-score" id="p1Score">0</div>
+</div>
+
+<!-- Player 2 Block -->
+<div class="p-block p2" id="p2Block" style="animation:slideRight 0.6s cubic-bezier(0.16,1,0.3,1) forwards;">
+    <div class="p-score" id="p2Score">0</div>
+    <div style="text-align:right">
+        <div class="p-name" id="p2Name">JOUEUR 2</div>
+        <div class="p-sub" id="p2Info">---</div>
+    </div>
+    <div class="p-avatar" id="p2Avatar"><div class="p-avatar-ph">?</div></div>
+</div>
+
+<script>
+(function() {
+    var wsUrl = 'ws://' + window.location.host + '/ws/overlay/{{ match_id|default("0") }}';
+    var socket = null;
+    var matchId = {{ match_id|default("0") }};
+    var tournamentId = {{ tournament_id|default("0") }};
+    var lang = '{{ lang|default("fr") }}';
+
+    var i18n = {
+        fr: { round: 'ROUND', waiting: 'EN ATTENTE...', p1: 'JOUEUR 1', p2: 'JOUEUR 2' },
+        en: { round: 'ROUND', waiting: 'WAITING...', p1: 'PLAYER 1', p2: 'PLAYER 2' }
+    };
+    var _t = i18n[lang] || i18n.fr;
+
+    function connectWs() {
+        socket = new WebSocket(wsUrl);
+        socket.onopen = function() { console.log('WS score-below connecté'); };
+        socket.onmessage = function(e) {
+            try {
+                var data = JSON.parse(e.data);
+                if (data.match) updateScore(data.match);
+            } catch(err) {}
+        };
+        socket.onclose = function() {
+            setTimeout(function() { connectWs(); }, 3000);
+        };
+    }
+
+    connectWs();
+
+    setInterval(function() {
+        if (socket && socket.readyState === 1) socket.send('ping');
+    }, 30000);
+
+    function flash(el, val) {
+        if (!el) return;
+        if (el.textContent !== String(val)) {
+            el.textContent = val;
+            el.classList.remove('flash');
+            void el.offsetWidth;
+            el.classList.add('flash');
+        }
+    }
+
+    function setAvatar(id, p) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (p && p.avatar_url) {
+            el.innerHTML = '<img src="' + p.avatar_url + '" alt="">';
+        } else {
+            el.innerHTML = '<div class="p-avatar-ph">?</div>';
+        }
+    }
+
+    function updateScore(m) {
+        if (m.player1) {
+            var n1 = document.getElementById('p1Name');
+            if (n1) {
+                n1.textContent = m.player1.name || _t.p1;
+                n1.classList.toggle('winner', !!m.player1.is_winner);
+            }
+            flash(document.getElementById('p1Score'), m.player1.score);
+            var i1 = document.getElementById('p1Info');
+            if (i1) i1.textContent = m.player1.character || '---';
+            setAvatar('p1Avatar', m.player1);
+        }
+        if (m.player2) {
+            var n2 = document.getElementById('p2Name');
+            if (n2) {
+                n2.textContent = m.player2.name || _t.p2;
+                n2.classList.toggle('winner', !!m.player2.is_winner);
+            }
+            flash(document.getElementById('p2Score'), m.player2.score);
+            var i2 = document.getElementById('p2Info');
+            if (i2) i2.textContent = m.player2.character || '---';
+            setAvatar('p2Avatar', m.player2);
+        }
+    }
+
+    // Initial data load
+    if (matchId && tournamentId) {
+        fetch('/api/tournaments/' + tournamentId + '/matches')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var matches = Array.isArray(data) ? data : (data.matches || []);
+                for (var i = 0; i < matches.length; i++) {
+                    if (matches[i].id === matchId) {
+                        updateScore(matches[i]);
+                        break;
+                    }
+                }
+            })
+            .catch(function() {});
+    }
+})();
+</script>
+</body>
+</html>
