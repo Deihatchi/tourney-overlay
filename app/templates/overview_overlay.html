@@ -198,24 +198,6 @@ body {
     50% { transform: scale(1.05); box-shadow: 0 0 15px var(--tertiary); }
 }
 
-/* VERSION BADGE */
-.version-badge {
-    position: fixed;
-    bottom: 12px;
-    right: 12px;
-    background: rgba(10, 10, 25, 0.8);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
-    color: rgba(255,255,255,0.4);
-    z-index: 1000;
-    pointer-events: none;
-}
-
 .card-status {
     font-family: 'Orbitron', monospace;
     font-weight: 700;
@@ -435,9 +417,12 @@ body {
     }
 
     function computeCurrentRound(matches) {
-        // Find the round with the highest absolute value that has active (non-complete) matches
+        // Only consider matches with two real players
         var activeRounds = {};
         matches.forEach(function(m) {
+            var p1 = m.player1 && m.player1.name && m.player1.name !== 'TBD' && m.player1.name !== '?';
+            var p2 = m.player2 && m.player2.name && m.player2.name !== 'TBD' && m.player2.name !== '?';
+            if (!p1 || !p2) return; // skip future rounds with placeholder players
             var r = Math.abs(m.round || 1);
             if (m.state !== 'complete' && m.state !== 'completed') {
                 activeRounds[r] = (activeRounds[r] || 0) + 1;
@@ -452,6 +437,9 @@ body {
             // All matches completed — show the final round (lowest abs round)
             var allRounds = {};
             matches.forEach(function(m) {
+                var p1 = m.player1 && m.player1.name && m.player1.name !== 'TBD' && m.player1.name !== '?';
+                var p2 = m.player2 && m.player2.name && m.player2.name !== 'TBD' && m.player2.name !== '?';
+                if (!p1 || !p2) return;
                 allRounds[Math.abs(m.round || 1)] = true;
             });
             var minR = 999;
@@ -521,7 +509,5 @@ body {
     }
 })();
 </script>
-
-<div class="version-badge">v{{ version }}</div>
 </body>
 </html>

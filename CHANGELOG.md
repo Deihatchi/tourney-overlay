@@ -2,6 +2,21 @@
 
 All notable changes to Tourney-Overlay will be documented in this format.
 
+## [1.2.4] - 2025-07-06
+
+### Added
+- **Pre-rendered match data** in score overlay route (player names/scores rendered server-side, no more blank initial display)
+- **Score overlay** — fixed IIFE syntax, removed version badge
+
+### Changed
+- **Dashboard** — "Overlays OBS" → "Overlays", compact URLs with hidden text, larger action buttons
+- **Bracket overlay** — removed version badge, TBD player filtering in round calculations
+- **Notification overlay** — removed version badge
+
+### Fixed
+- **Bracket round filter** — now properly ignores future rounds with placeholder (TBD) players
+- **Winner trophy** 🏆 now displays in WebSocket-updated matches
+
 ## [1.2.3] - 2025-07-05
 
 ### Fixed

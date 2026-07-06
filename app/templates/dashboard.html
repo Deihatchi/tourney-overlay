@@ -63,7 +63,8 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 .ui{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.25);border-radius:8px;padding:10px 14px}
 .uc{flex:1;font-family:monospace;font-size:11px;color:var(--s);word-break:break-all;min-width:0;line-height:1.5}
 .ub{display:flex;gap:6px;flex-shrink:0}
-.ub .btn{padding:5px 10px;font-size:10px;letter-spacing:1px}
+.ub .btn{padding:10px 20px;font-size:14px;letter-spacing:1px;flex:1}
+#urlSec .uc{display:none}
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:600px){.sg{grid-template-columns:1fr}}
 .toast{position:fixed;bottom:30px;right:30px;background:var(--sf);border-left:4px solid var(--p);border-radius:10px;padding:16px 20px;box-shadow:0 20px 60px rgba(0,0,0,0.6);z-index:999;transform:translateX(120%);transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);min-width:300px;backdrop-filter:blur(20px)}
@@ -175,7 +176,7 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 
 <!-- ROW 6: Overlay URLs -->
 <div class="card full" style="margin-top:20px">
-<div class="card-title" id="lbl_overlays">Overlays OBS</div>
+<div class="card-title" id="lbl_overlays">Overlays</div>
 <div id="urlSec"><div class="em" id="lbl_nourl">Sélectionne un match</div></div>
 </div>
 
@@ -488,14 +489,14 @@ async function selectTourney(id) {
             di.innerHTML =
                 '<div class="mp" onclick="selectMatch(' + m.id + ')">' +
                     (a1 ? '<img src="' + a1 + '" class="av">' : '<div class="av-ph"></div>') +
-                    '<span>' + p1.replace(/\"/g, '"') + '</span>' +
+                    '<span>' + p1.replace(/\\"/g, '"') + '</span>' +
                     '<span class="mv">VS</span>' +
-                    '<span>' + p2.replace(/\"/g, '"') + '</span>' +
+                    '<span>' + p2.replace(/\\"/g, '"') + '</span>' +
                     (a2 ? '<img src="' + a2 + '" class="av">' : '<div class="av-ph"></div>') +
                 '</div>' +
-                '<div class="ms">' + s1 + '\u2014' + s2 + '</div>' +
-                '<div class="mst">' + si + ' ' + rd + '</div>' +
-                '<button class="btn btn-s btn-sm edit-btn" style="flex-shrink:0">✏️</button>';
+                '<div class="ms">' + s1 + '—' + s2 + '</div>' +
+                        '<div class="mst">' + si + ' ' + rd + (wid ? ' 🏆' : '') + '</div>' +
+                        '<button class="btn btn-s btn-sm edit-btn" style="flex-shrink:0">✏️</button>';
             mc.appendChild(di);
         });
         document.getElementById('polBtn').disabled = false;
@@ -729,9 +730,9 @@ function connectDashboardWs() {
             '<span>' + p2.replace(/\\\"/g, '"') + '</span>' +
             (a2 ? '<img src="' + a2 + '" class="av">' : '<div class="av-ph"></div>') +
         '</div>' +
-        '<div class="ms">' + s1 + '\u2014' + s2 + '</div>' +
-        '<div class="mst">' + si + ' ' + rd + '</div>' +
-        '<button class="btn btn-s btn-sm edit-btn" style="flex-shrink:0">✏️</button>';
+        '<div class="ms">' + s1 + '—' + s2 + '</div>' +
+                '<div class="mst">' + si + ' ' + rd + (wid ? ' 🏆' : '') + '</div>' +
+                '<button class="btn btn-s btn-sm edit-btn" style="flex-shrink:0">✏️</button>';
 
     if (existing) {
         existing.innerHTML = html;

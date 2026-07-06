@@ -47,14 +47,35 @@ async def overlay_score(
     lang: str = Query(default="fr", description="Language"),
 ):
     theme = _resolve_theme(game, primary, secondary, tertiary, animation)
-    # Winner text based on language
     winner_text = "VAINQUEUR" if lang == "fr" else "WINNER"
-    # Get version from package metadata
     import importlib.metadata
     try:
         version = importlib.metadata.version("tourney-overlay")
     except importlib.metadata.PackageNotFoundError:
         version = "dev"
+
+    # Fetch initial match data from API
+    player1_name = ""
+    player2_name = ""
+    player1_score = ""
+    player2_score = ""
+    try:
+        from app.services.tournament import fetch_matches, get_api_key
+        key = get_api_key()
+        if key:
+            matches = fetch_matches(key, tournament_id)
+            for m in matches:
+                if m.id == match_id:
+                    if m.player1:
+                        player1_name = m.player1.name or ""
+                        player1_score = str(m.player1.score) if m.player1.score is not None else ""
+                    if m.player2:
+                        player2_name = m.player2.name or ""
+                        player2_score = str(m.player2.score) if m.player2.score is not None else ""
+                    break
+    except Exception:
+        pass  # API not configured yet, will load via WS
+
     tmpl = templates_env.get_template("overlay_score.html")
     return tmpl.render(
         request=request,
@@ -68,6 +89,10 @@ async def overlay_score(
         lang=lang,
         winner_text=winner_text,
         version=version,
+        player1_name=player1_name,
+        player2_name=player2_name,
+        player1_score=player1_score,
+        player2_score=player2_score,
     )
 
 
