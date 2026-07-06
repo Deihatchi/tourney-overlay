@@ -135,6 +135,33 @@ def fetch_tournaments(api_key: str, username: str = "") -> list[TournamentInfo]:
     return tournaments
 
 
+def _parse_name_with_tag(full_name: str) -> tuple[str, str]:
+    """Parse a participant name to extract team tag and player name.
+    
+    Expected formats:
+    - "[TAG] PlayerName" -> ("TAG", "PlayerName")
+    - "TAG PlayerName" -> ("TAG", "PlayerName")
+    - "PlayerName" -> ("", "PlayerName")
+    """
+    name = full_name.strip()
+    if not name:
+        return ("", "")
+    
+    # Check for [TAG] format
+    if name.startswith("[") and "]" in name:
+        end = name.index("]")
+        tag = name[1:end].strip()
+        player_name = name[end+1:].strip()
+        return (tag, player_name)
+    
+    # Check for space-separated tag (first word if it looks like a tag: all caps, 2-5 chars)
+    parts = name.split(" ", 1)
+    if len(parts) == 2 and parts[0].isupper() and 2 <= len(parts[0]) <= 5:
+        return (parts[0], parts[1])
+    
+    return ("", name)
+
+
 def _fetch_participants(api_key: str, tournament_id: int, username: str = "") -> dict[int, dict]:
     """Fetch participants for a tournament and return a dict keyed by participant id."""
     params: dict[str, str] = {}
@@ -149,6 +176,11 @@ def _fetch_participants(api_key: str, tournament_id: int, username: str = "") ->
         for item in raw:
             p = item.get("participant", {})
             pid = p.get("id", 0)
+            # Parse team tag from name
+            full_name = p.get("name", "") or f"Player {pid}"
+            team_tag, player_name = _parse_name_with_tag(full_name)
+            p["parsed_name"] = player_name
+            p["team_tag"] = team_tag
             participants[pid] = p
     return participants
 
@@ -210,7 +242,8 @@ def fetch_matches(api_key: str, tournament_id: int, username: str = "") -> list[
 
             player1 = PlayerInfo(
                 id=p1_id,
-                name=p1_data.get("name", "") or f"Player {p1_id}",
+                name=p1_data.get("parsed_name", "") or f"Player {p1_id}",
+                team_tag=p1_data.get("team_tag", ""),
                 score=p1_score,
                 is_winner=m.get("winner_id") == p1_id,
                 avatar_url=_avatar(p1_data),
@@ -218,7 +251,8 @@ def fetch_matches(api_key: str, tournament_id: int, username: str = "") -> list[
 
             player2 = PlayerInfo(
                 id=p2_id,
-                name=p2_data.get("name", "") or f"Player {p2_id}",
+                name=p2_data.get("parsed_name", "") or f"Player {p2_id}",
+                team_tag=p2_data.get("team_tag", ""),
                 score=p2_score,
                 is_winner=m.get("winner_id") == p2_id,
                 avatar_url=_avatar(p2_data),
@@ -314,3 +348,44 @@ def stop_polling() -> None:
     for task in _polling_tasks.values():
         task.cancel()
     _polling_tasks.clear()
+
+
+# ── Match Operations ──────────────────────────────────────────────────────────
+
+def swap_players(
+    tournament_id: int,
+    match_id: int,
+) -> dict[str, Any]:
+    """Swap player 1 and player 2 on Challonge by swapping their IDs."""
+    # First, get current match data to know the player IDs
+    matches = fetch_matches(_api_key, tournament_id)
+    current_match = None
+    for m in matches:
+        if m.id == match_id:
+            current_match = m
+            break
+    
+    if not current_match or not current_match.player1 or not current_match.player2:
+        raise ValueError("Match not found or missing players")
+    
+    # Swap player1_id and player2_id on Challonge
+    data: dict[str, str] = {
+        "match[player1_id]": str(current_match.player2.id),
+        "match[player2_id]": str(current_match.player1.id),
+    }
+    
+    url = _build_url(f"/tournaments/{tournament_id}/matches/{match_id}.json")
+    return _put(url, data)
+
+
+def reset_bracket(
+    tournament_id: int,
+    match_id: int,
+) -> dict[str, Any]:
+    """Reset match scores to 0-0 for bracket reset (Grand Finals)."""
+    data: dict[str, str] = {
+        "match[scores_csv]": "0-0",
+    }
+    
+    url = _build_url(f"/tournaments/{tournament_id}/matches/{match_id}.json")
+    return _put(url, data)

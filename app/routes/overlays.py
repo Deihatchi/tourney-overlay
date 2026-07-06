@@ -242,6 +242,35 @@ async def overview_overlay(
     )
 
 
+@router.get("/overlay/casters", response_class=HTMLResponse)
+async def overlay_casters(
+    request: Request,
+    game: str = Query(default="sf6"),
+    primary: str = Query(default="#ff4655"),
+    secondary: str = Query(default="#00d4ff"),
+    tertiary: str = Query(default="#ffd700"),
+    animation: str = Query(default="slide"),
+    font: str = Query(default="Rajdhani"),
+    lang: str = Query(default="fr"),
+):
+    theme = _resolve_theme(game, primary, secondary, tertiary, animation)
+    # Get version from package metadata
+    import importlib.metadata
+    try:
+        version = importlib.metadata.version("tourney-overlay")
+    except importlib.metadata.PackageNotFoundError:
+        version = "dev"
+    tmpl = templates_env.get_template("overlay_casters.html")
+    return tmpl.render(
+        request=request,
+        game=game,
+        **theme,
+        font_family=f"'{font}', sans-serif",
+        lang=lang,
+        version=version,
+    )
+
+
 @router.get("/", response_class=HTMLResponse)
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request):

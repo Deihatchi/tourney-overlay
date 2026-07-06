@@ -489,7 +489,9 @@ body {
         else if (m.state === 'pending' || m.state === 'open') card.classList.add('live');
 
         var p1 = (m.player1 && m.player1.name) || 'TBD';
+        var p1Tag = (m.player1 && m.player1.team_tag) || '';
         var p2 = (m.player2 && m.player2.name) || 'TBD';
+        var p2Tag = (m.player2 && m.player2.team_tag) || '';
         var s1 = (m.player1 && m.player1.score != null) ? m.player1.score : '-';
         var s2 = (m.player2 && m.player2.score != null) ? m.player2.score : '-';
 
@@ -508,12 +510,14 @@ body {
 
         var roundNum = Math.abs(m.round || 1);
 
+        var displayP1 = p1Tag ? '[' + p1Tag + '] ' + p1 : p1;
+        var displayP2 = p2Tag ? '[' + p2Tag + '] ' + p2 : p2;
         card.innerHTML =
             '<div class="card-round">' + _t.round + ' ' + roundNum + '</div>' +
             '<div class="card-players">' +
-                '<div class="card-player' + (m.player1 && m.player1.is_winner ? ' card-winner' : '') + '">' + p1.replace(/</g, '<') + '</div>' +
+                '<div class="card-player' + (m.player1 && m.player1.is_winner ? ' card-winner' : '') + '">\'' + displayP1.replace(/</g, '<') + '</div>' +
                 '<div class="card-score">' + s1 + '–' + s2 + '</div>' +
-                '<div class="card-player' + (m.player2 && m.player2.is_winner ? ' card-winner' : '') + '">' + p2.replace(/</g, '<') + '</div>' +
+                '<div class="card-player' + (m.player2 && m.player2.is_winner ? ' card-winner' : '') + '">\'' + displayP2.replace(/</g, '<') + '</div>' +
             '</div>' +
             '<div class="card-status">' + statusText + winnerBadge + '</div>';
 

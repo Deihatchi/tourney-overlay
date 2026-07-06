@@ -270,6 +270,7 @@ class MatchState(str, Enum):
 class PlayerInfo(BaseModel):
     id: int = 0
     name: str = ""
+    team_tag: str = ""
     score: int = 0
     is_winner: bool = False
     character: str = ""
@@ -286,6 +287,7 @@ class MatchInfo(BaseModel):
     player1: PlayerInfo | None = None
     player2: PlayerInfo | None = None
     winner_id: int | None = None
+    bracket_reset: bool = False
 
 
 class TournamentInfo(BaseModel):
@@ -317,6 +319,11 @@ class AppConfig(BaseModel):
     animation_style: str = ""
     notification_duration: int = 8
     notification_position: str = "bottom-right"
+    # Casters
+    caster1_name: str = ""
+    caster1_social: str = ""
+    caster2_name: str = ""
+    caster2_social: str = ""
 
 
 class OverlayConfig(BaseModel):
@@ -342,3 +349,9 @@ class ScoreUpdate(BaseModel):
     player1_score: int = 0
     player2_score: int = 0
     winner_id: int = 0
+    bracket_reset: bool = False
+
+
+class SwapPlayers(BaseModel):
+    match_id: int = 0
+    tournament_id: int = 0

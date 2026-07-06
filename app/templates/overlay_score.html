@@ -139,6 +139,49 @@ body {
     white-space: nowrap;
 }
 
+/* ---- BRACKET RESET INDICATOR ---- */
+.bracket-reset-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: 4px;
+    color: var(--tertiary);
+    text-shadow: 0 0 20px color-mix(in srgb, var(--tertiary) 60%, transparent),
+                 0 0 40px color-mix(in srgb, var(--tertiary) 30%, transparent);
+    animation: brPulse 1.5s ease-in-out infinite;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 4px 16px;
+    border-radius: 4px;
+    border: 1px solid var(--tertiary);
+    white-space: nowrap;
+    z-index: 20;
+}
+
+@keyframes brPulse {
+    0%, 100% { opacity: 0.8; transform: translateX(-50%) scale(1); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+}
+
+/* ---- PLAYER TAG ---- */
+.p-tag {
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--tertiary);
+    opacity: 0.9;
+    margin-top: -4px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 320px;
+}
+
 .p-side.p2 .p-name {
     text-shadow: 0 0 30px color-mix(in srgb, var(--secondary) 40%, transparent);
 }
@@ -418,6 +461,7 @@ body {
 <div class="corner-tag">SF OVERLAY</div>
 
 <div class="score-wrapper" id="scoreOverlay">
+    <div class="bracket-reset-badge" id="bracketResetBadge" style="display:none">BRACKET RESET</div>
     <div class="score-bg">
         <div class="accent-bar"></div>
     </div>
@@ -425,6 +469,7 @@ body {
         <!-- Player 1 -->
         <div class="p-side p1" id="p1Side">
             <div class="winner-badge">{{ winner_text or "WINNER" }}</div>
+            <div class="p-tag" id="p1Tag" style="display:none"></div>
             <div class="p-name" id="p1Name">{{ player1_name or "JOUEUR 1" }}</div>
             <div class="p-score-row">
                 <div id="p1Avatar" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--primary);overflow:hidden;flex-shrink:0;display:none"></div>
@@ -440,6 +485,7 @@ body {
         <!-- Player 2 -->
         <div class="p-side p2" id="p2Side">
             <div class="winner-badge">{{ winner_text or "WINNER" }}</div>
+            <div class="p-tag" id="p2Tag" style="display:none"></div>
             <div class="p-name" id="p2Name">{{ player2_name or "JOUEUR 2" }}</div>
             <div class="p-score-row" style="flex-direction:row-reverse;">
                 <div class="p-score" id="p2Score">{{ player2_score or "0" }}</div>
@@ -515,6 +561,13 @@ body {
     function updateScore(m) {
         if (m.player1) {
             document.getElementById('p1Name').textContent = m.player1.name || _t.p1;
+            var p1Tag = document.getElementById('p1Tag');
+            if (m.player1.team_tag) {
+                p1Tag.textContent = '[' + m.player1.team_tag + ']';
+                p1Tag.style.display = '';
+            } else {
+                p1Tag.style.display = 'none';
+            }
             flash('p1Score', m.player1.score);
             document.getElementById('p1Info').textContent = m.player1.character || '---';
             document.getElementById('p1Side').classList.toggle('winner', !!m.player1.is_winner);
@@ -522,6 +575,13 @@ body {
         }
         if (m.player2) {
             document.getElementById('p2Name').textContent = m.player2.name || _t.p2;
+            var p2Tag = document.getElementById('p2Tag');
+            if (m.player2.team_tag) {
+                p2Tag.textContent = '[' + m.player2.team_tag + ']';
+                p2Tag.style.display = '';
+            } else {
+                p2Tag.style.display = 'none';
+            }
             flash('p2Score', m.player2.score);
             document.getElementById('p2Info').textContent = m.player2.character || '---';
             document.getElementById('p2Side').classList.toggle('winner', !!m.player2.is_winner);
@@ -529,6 +589,13 @@ body {
         }
         document.getElementById('roundLabel').textContent = _t.round + ' ' + (m.round || 1);
         if (m.tournament_name) document.getElementById('tournamentLabel').textContent = m.tournament_name;
+        
+        // Bracket reset indicator
+        var brBadge = document.getElementById('bracketResetBadge');
+        if (brBadge) {
+            brBadge.style.display = m.bracket_reset ? '' : 'none';
+            brBadge.textContent = _t.bracket_reset_label || 'BRACKET RESET';
+        }
     }
 
     // Initial data load

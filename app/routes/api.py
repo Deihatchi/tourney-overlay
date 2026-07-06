@@ -12,7 +12,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
 from app.config import settings
-from app.models import AppConfig, ChallongeConfig, GAME_THEMES, ScoreUpdate
+from app.models import AppConfig, ChallongeConfig, GAME_THEMES, ScoreUpdate, SwapPlayers
 from app.services import tournament
 from app.services.websocket_manager import manager
 from app.template_env import STATIC_DIR
@@ -212,6 +212,7 @@ async def update_score(update: ScoreUpdate) -> dict:
             matches = tournament.fetch_matches(api_key, update.tournament_id)
             for m in matches:
                 if m.id == update.match_id:
+                    m.bracket_reset = update.bracket_reset
                     await manager.broadcast_match_update(m)
                     if m.state.value == "completed":
                         await manager.broadcast_notification(m)
@@ -222,6 +223,79 @@ async def update_score(update: ScoreUpdate) -> dict:
         return {"status": "ok", "message": f"Score {scores_csv} enregistré sur Challonge"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur Challonge: {str(e)[:100]}")
+
+
+@router.post("/match/swap")
+async def swap_players(update: SwapPlayers) -> dict:
+    """Swap Player 1 and Player 2 on Challonge."""
+    api_key = tournament.get_api_key()
+    if not api_key:
+        raise HTTPException(status_code=400, detail="Clé API non configurée")
+
+    try:
+        result = tournament.swap_players(update.tournament_id, update.match_id)
+
+        # Re-fetch and broadcast via WebSocket
+        try:
+            matches = tournament.fetch_matches(api_key, update.tournament_id)
+            for m in matches:
+                if m.id == update.match_id:
+                    await manager.broadcast_match_update(m)
+                    break
+        except Exception:
+            pass
+
+        return {"status": "ok", "message": "Joueurs inversés"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur Challonge: {str(e)[:100]}")
+
+
+@router.post("/match/reset-bracket")
+async def reset_bracket(update: SwapPlayers) -> dict:
+    """Reset match scores to 0-0 for bracket reset (Grand Finals)."""
+    api_key = tournament.get_api_key()
+    if not api_key:
+        raise HTTPException(status_code=400, detail="Clé API non configurée")
+
+    try:
+        result = tournament.reset_bracket(update.tournament_id, update.match_id)
+
+        # Re-fetch and broadcast via WebSocket with bracket_reset flag
+        try:
+            matches = tournament.fetch_matches(api_key, update.tournament_id)
+            for m in matches:
+                if m.id == update.match_id:
+                    m.bracket_reset = True
+                    await manager.broadcast_match_update(m)
+                    break
+        except Exception:
+            pass
+
+        return {"status": "ok", "message": "Bracket Reset: scores remis à 0-0"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur Challonge: {str(e)[:100]}")
+
+
+@router.get("/casters")
+async def get_casters() -> dict:
+    """Return current caster configuration."""
+    return {
+        "caster1_name": _current_config.caster1_name,
+        "caster1_social": _current_config.caster1_social,
+        "caster2_name": _current_config.caster2_name,
+        "caster2_social": _current_config.caster2_social,
+    }
+
+
+@router.post("/casters")
+async def save_casters(payload: dict) -> dict:
+    """Save caster configuration."""
+    global _current_config
+    _current_config.caster1_name = payload.get("caster1_name", "")
+    _current_config.caster1_social = payload.get("caster1_social", "")
+    _current_config.caster2_name = payload.get("caster2_name", "")
+    _current_config.caster2_social = payload.get("caster2_social", "")
+    return {"status": "ok", "message": "Casters sauvegardés"}
 
 
 # ── Logo ─────────────────────────────────────────────────────────────────────
@@ -296,53 +370,71 @@ TRANSLATIONS = {
         "match_completed": "Match terminé",
         "score_updated": "Score mis à jour",
         "preview": "Aperçu",
-        "optional": "optionnel",
-    },
-    "en": {
-        "app_name": "Tournament Overlay",
-        "service": "Service",
-        "game": "Game",
-        "api": "API",
-        "api_key": "Challonge API Key",
-        "username": "Username (opt.)",
-        "connect": "Connect",
-        "connected": "Connected",
-        "tournament": "Tournament",
-        "matches": "Matches",
-        "style": "Overlay Style",
-        "primary": "Primary color",
-        "secondary": "Secondary color",
-        "tertiary": "Tertiary color (winner)",
-        "animation": "Animation",
-        "resolution": "OBS Resolution",
-        "overlays": "Overlays",
-        "bracket_overlay": "Bracket",
-        "recap_overlay": "Récap",
-        "score_overlay": "Score",
-        "notification_overlay": "Notification",
-        "open": "Open",
-        "copy": "Copy",
-        "copied": "Copied",
-        "watch": "Watch",
-        "stop": "Stop",
-        "edit_score": "Edit score",
-        "winner": "Winner",
-        "send": "Send to Challonge",
-        "cancel": "Cancel",
-        "select_match": "Select a match",
-        "select_tourney": "Select a tournament",
-        "loading": "Loading...",
-        "error": "Error",
-        "success": "Success",
-        "logo": "Custom logo",
-        "upload_logo": "Choose file",
-        "language": "Language",
-        "score": "Score",
-        "match_completed": "Match completed",
-        "score_updated": "Score updated",
-        "preview": "Preview",
-        "optional": "optional",
-    },
+                "optional": "optionnel",
+                "swap_players": "Inverser P1/P2",
+                "bracket_reset": "Bracket Reset",
+                "casters": "Commentateurs",
+                "caster1_name": "Caster 1 — Nom",
+                "caster1_social": "Caster 1 — Réseau",
+                "caster2_name": "Caster 2 — Nom",
+                "caster2_social": "Caster 2 — Réseau",
+                "save_casters": "Sauvegarder",
+                "team_tag": "Tag équipe"
+            },
+            "en": {
+                "app_name": "Tournament Overlay",
+                "service": "Service",
+                "game": "Game",
+                "api": "API",
+                "api_key": "Challonge API Key",
+                "username": "Username (opt.)",
+                "connect": "Connect",
+                "connected": "Connected",
+                "tournament": "Tournament",
+                "matches": "Matches",
+                "style": "Overlay Style",
+                "primary": "Primary color",
+                "secondary": "Secondary color",
+                "tertiary": "Tertiary color (winner)",
+                "animation": "Animation",
+                "resolution": "OBS Resolution",
+                "overlays": "Overlays",
+                "bracket_overlay": "Bracket",
+                "recap_overlay": "Recap",
+                "score_overlay": "Score",
+                "notification_overlay": "Notification",
+                "open": "Open",
+                "copy": "Copy",
+                "copied": "Copied",
+                "watch": "Watch",
+                "stop": "Stop",
+                "edit_score": "Edit score",
+                "winner": "Winner",
+                "send": "Send to Challonge",
+                "cancel": "Cancel",
+                "select_match": "Select a match",
+                "select_tourney": "Select a tournament",
+                "loading": "Loading...",
+                "error": "Error",
+                "success": "Success",
+                "logo": "Custom logo",
+                "upload_logo": "Choose file",
+                "language": "Language",
+                "score": "Score",
+                "match_completed": "Match completed",
+                "score_updated": "Score updated",
+                "preview": "Preview",
+                "optional": "optional",
+                "swap_players": "Swap P1/P2",
+                "bracket_reset": "Bracket Reset",
+                "casters": "Casters",
+                "caster1_name": "Caster 1 — Name",
+                "caster1_social": "Caster 1 — Social",
+                "caster2_name": "Caster 2 — Name",
+                "caster2_social": "Caster 2 — Social",
+                "save_casters": "Save",
+                "team_tag": "Team Tag"
+            },
 }
 
 

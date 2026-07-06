@@ -356,7 +356,9 @@ body {
 
         var match = data.match || {};
         var p1 = (match.player1 && match.player1.name) || '???';
+        var p1Tag = (match.player1 && match.player1.team_tag) || '';
         var p2 = (match.player2 && match.player2.name) || '???';
+        var p2Tag = (match.player2 && match.player2.team_tag) || '';
         var s1 = (match.player1 && match.player1.score != null) ? match.player1.score : '-';
         var s2 = (match.player2 && match.player2.score != null) ? match.player2.score : '-';
         var isKO = match.state === 'complete';
@@ -377,6 +379,7 @@ body {
                     (match.player1 && match.player1.avatar_url
                         ? '<img src="' + match.player1.avatar_url + '" class="toast-avatar">'
                         : '<div class="toast-avatar-ph"></div>') +
+                    (p1Tag ? '<span class="hl" style="opacity:0.6;margin-right:6px">[' + p1Tag + ']</span>' : '') +
                     '<span class="hl">' + p1 + '</span>' +
                     '<span class="toast-score">' + s1 + '–' + s2 + '</span>' +
                     '<span class="hl-p2">' + p2 + '</span>' +

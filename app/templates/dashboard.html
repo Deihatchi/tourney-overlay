@@ -173,7 +173,25 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 </div>
 </div>
 
-<!-- ROW 5: Matches -->
+<!-- ROW 5: Casters -->
+<div class="card full" style="margin-top:20px">
+<div class="card-title" id="lbl_casters">Commentateurs</div>
+<div class="g2">
+<div>
+<div class="g"><label id="lbl_caster1_name">Caster 1 — Nom</label><input type="text" id="caster1Name" placeholder="Nom/Pseudo"></div>
+<div class="g"><label id="lbl_caster1_social">Caster 1 — Réseau (X/Twitch)</label><input type="text" id="caster1Social" placeholder="@pseudo ou twitch.tv/nom"></div>
+</div>
+<div>
+<div class="g"><label id="lbl_caster2_name">Caster 2 — Nom</label><input type="text" id="caster2Name" placeholder="Nom/Pseudo"></div>
+<div class="g"><label id="lbl_caster2_social">Caster 2 — Réseau (X/Twitch)</label><input type="text" id="caster2Social" placeholder="@pseudo ou twitch.tv/nom"></div>
+</div>
+</div>
+<div style="margin-top:10px">
+<button class="btn btn-p" onclick="saveCasters()"> 💾 Sauvegarder les casters</button>
+</div>
+</div>
+
+<!-- ROW 6: Matches -->
 <div class="card full" style="margin-top:20px">
 <div class="card-title" id="lbl_matches">Matchs</div>
 <div class="ml" id="matchCont"><div class="em" id="lbl_nomatch">Sélectionne un tournoi</div></div>
@@ -192,11 +210,32 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 <div class="mbox">
 <div class="card-title">✏️ Score</div>
 <div id="modalPlayers" style="display:flex;align-items:center;gap:16px;margin-bottom:20px;justify-content:center;font-family:Rajdhani,sans-serif;font-weight:700;font-size:18px"></div>
-<div style="display:flex;gap:16px;justify-content:center;margin-bottom:24px">
-<div style="text-align:center"><label>Score</label><input type="number" id="sc1" min="0" max="99" style="width:80px;text-align:center;font-size:24px;font-family:Orbitron,monospace;margin-top:4px"></div>
-<div style="display:flex;align-items:center;padding-top:24px;font-family:Orbitron,monospace;font-weight:900;font-size:20px;color:var(--di)">:</div>
-<div style="text-align:center"><label>Score</label><input type="number" id="sc2" min="0" max="99" style="width:80px;text-align:center;font-size:24px;font-family:Orbitron,monospace;margin-top:4px"></div>
+
+<!-- Player 1 -->
+<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;padding:16px;background:var(--sf2);border-radius:8px;border-left:3px solid var(--p)">
+<div style="display:flex;align-items:center;gap:8px;font-family:Rajdhani,sans-serif;font-weight:600;font-size:13px;color:var(--di);text-transform:uppercase;letter-spacing:1px">P1</div>
+<div style="display:flex;gap:8px;align-items:center">
+<input type="text" id="p1Tag" placeholder="[TAG]" style="width:70px;text-align:center;background:var(--sf);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:8px 12px;color:#fff;font-family:Orbitron,monospace;font-size:13px;outline:none">
+<input type="text" id="p1Name" placeholder="Nom joueur" style="flex:1;min-width:120px;background:var(--sf);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:8px 12px;color:#fff;font-family:Rajdhani,sans-serif;font-size:14px;outline:none">
+<input type="number" id="sc1" min="0" max="99" style="width:80px;text-align:center;font-size:24px;font-family:Orbitron,monospace;background:var(--sf);border:1px solid rgba(255,255,255,0.06);border-radius:6px;color:#fff;outline:none">
 </div>
+</div>
+
+<!-- Player 2 -->
+<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;padding:16px;background:var(--sf2);border-radius:8px;border-left:3px solid var(--s)">
+<div style="display:flex;align-items:center;gap:8px;font-family:Rajdhani,sans-serif;font-weight:600;font-size:13px;color:var(--di);text-transform:uppercase;letter-spacing:1px">P2</div>
+<div style="display:flex;gap:8px;align-items:center">
+<input type="text" id="p2Tag" placeholder="[TAG]" style="width:70px;text-align:center;background:var(--sf);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:8px 12px;color:#fff;font-family:Orbitron,monospace;font-size:13px;outline:none">
+<input type="text" id="p2Name" placeholder="Nom joueur" style="flex:1;min-width:120px;background:var(--sf);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:8px 12px;color:#fff;font-family:Rajdhani,sans-serif;font-size:14px;outline:none">
+<input type="number" id="sc2" min="0" max="99" style="width:80px;text-align:center;font-size:24px;font-family:Orbitron,monospace;background:var(--sf);border:1px solid rgba(255,255,255,0.06);border-radius:6px;color:#fff;outline:none">
+</div>
+</div>
+
+<div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;margin-top:8px">
+<button class="btn btn-sm" id="swapBtn" onclick="swapPlayers()" style="background:var(--t);color:#000;font-weight:700">⇄ Swap P1/P2</button>
+<button class="btn btn-sm" id="resetBracketBtn" onclick="resetBracket()" style="background:linear-gradient(135deg,#ff6b35,#ff3344);color:#fff;font-weight:700">🔄 Bracket Reset</button>
+</div>
+
 <label id="lbl_winner">Gagnant (optionnel)</label>
 <div style="display:flex;gap:8px;margin-bottom:24px;margin-top:8px">
 <button class="btn btn-sm" id="win1" onclick="selWin(1)" style="flex:1;background:var(--sf2)">—</button>
@@ -561,6 +600,9 @@ function updateUrls() {
                 '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
                 '&animation=' + a + '&match_id=' + mid + '&tournament_id=' + tid +
                 '&lang=' + encodeURIComponent(lang) + '&offset_y=180';
+    var castersUrl = proto + '//' + host + '/overlay/casters?game=' + game +
+        '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
+        '&animation=' + a + '&lang=' + encodeURIComponent(lang);
             var rlabel = res.replace('x', '\u00d7');
 
             sec.innerHTML =
@@ -587,6 +629,12 @@ function updateUrls() {
                         '<div class="ui"><span class="uc" id="sbUrl">' + scoreBelowUrl + '</span>' +
                             '<div class="ub">' +
                                 '<button class="btn btn-p btn-sm preview-btn" data-w="960" data-h="80">▶</button>' +
+                                '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
+                            '</div></div>' +
+                        '<div class="ol"><span class="ol-lbl">CASTERS</span></div>' +
+                        '<div class="ui"><span class="uc" id="cvUrl">' + castersUrl + '</span>' +
+                            '<div class="ub">' +
+                                '<button class="btn btn-p btn-sm preview-btn" data-w="500" data-h="300">▶</button>' +
                                 '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
                             '</div></div>' +
                         '<div class="ol"><span class="ol-lbl">' + t('notification_overlay') + '</span></div>' +
@@ -672,7 +720,7 @@ async function stopPoll() {
 }
 
 /* ── Score Modal ─────────────────────────────────────────────────── */
-function openScoreEditor(mid, p1id, p1n, p2id, p2n, s1, s2, winner) {
+async function openScoreEditor(mid, p1id, p1n, p2id, p2n, s1, s2, winner) {
     editMid = mid; editP1 = p1id; editP2 = p2id; editWin = winner || 0;
     document.getElementById('modalPlayers').innerHTML =
         '<span>' + p1n + '</span><span class="mv" style="font-size:16px">VS</span><span>' + p2n + '</span>';
@@ -684,6 +732,26 @@ function openScoreEditor(mid, p1id, p1n, p2id, p2n, s1, s2, winner) {
     document.getElementById('win2').style.background = (winner === p2id) ? 'var(--p)' : 'var(--sf2)';
     document.getElementById('scoreFb').textContent = '';
     document.getElementById('scoreModal').style.display = 'flex';
+
+    // Fetch match to get team tags
+    try {
+        var r = await fetch(BASE + '/api/tournaments/' + selTourney + '/matches');
+        var d = await r.json();
+        var matches = d.matches || d;
+        for (var i = 0; i < matches.length; i++) {
+            if (matches[i].id === mid) {
+                if (matches[i].player1) {
+                    document.getElementById('p1Tag').value = matches[i].player1.team_tag || '';
+                    document.getElementById('p1Name').value = matches[i].player1.name || '';
+                }
+                if (matches[i].player2) {
+                    document.getElementById('p2Tag').value = matches[i].player2.team_tag || '';
+                    document.getElementById('p2Name').value = matches[i].player2.name || '';
+                }
+                break;
+            }
+        }
+    } catch(e) {}
 }
 
 function closeScoreModal() {
@@ -729,6 +797,87 @@ async function submitScore() {
     } catch(e) {
         document.getElementById('scoreFb').textContent = '\u274C Erreur';
     }
+}
+
+/* ── Swap Players ────────────────────────────────────────────────── */
+async function swapPlayers() {
+    if (!selTourney || !editMid) { toast('❌', 'Aucun match sélectionné', 'e'); return; }
+    try {
+        var r = await fetch(BASE + '/api/match/swap', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ match_id: editMid, tournament_id: selTourney })
+        });
+        var d = await r.json();
+        if (r.ok) {
+            toast('✅', 'Joueurs inversés', 's');
+            // Update the modal inputs by swapping values
+            var p1Tag = document.getElementById('p1Tag').value;
+            var p1Name = document.getElementById('p1Name').value;
+            var p2Tag = document.getElementById('p2Tag').value;
+            var p2Name = document.getElementById('p2Name').value;
+            document.getElementById('p1Tag').value = p2Tag;
+            document.getElementById('p1Name').value = p2Name;
+            document.getElementById('p2Tag').value = p1Tag;
+            document.getElementById('p2Name').value = p1Name;
+            // Reload match list
+            var activeTourney = document.querySelector('.ti.a');
+            if (activeTourney) selectTourney(parseInt(activeTourney.dataset.id));
+        } else { toast('❌', d.detail || 'Erreur', 'e'); }
+    } catch(e) { toast('❌', 'Erreur réseau', ' + e.message, 'e'); }
+}
+
+/* ── Bracket Reset ────────────────────────────────────────────────── */
+async function resetBracket() {
+    if (!selTourney || !editMid) { toast('❌', 'Aucun match sélectionné', 'e'); return; }
+    if (!confirm(t('bracket_reset') + ' ?')) return;
+    try {
+        var r = await fetch(BASE + '/api/match/reset-bracket', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ match_id: editMid, tournament_id: selTourney })
+        });
+        var d = await r.json();
+        if (r.ok) {
+            toast('✅', 'Bracket Reset: scores remis à 0-0', 's');
+            document.getElementById('sc1').value = 0;
+            document.getElementById('sc2').value = 0;
+            var activeTourney = document.querySelector('.ti.a');
+            if (activeTourney) selectTourney(parseInt(activeTourney.dataset.id));
+        } else { toast('❌', d.detail || 'Erreur', 'e'); }
+    } catch(e) { toast('❌', 'Erreur', 'e'); }
+}
+
+/* ── Casters ──────────────────────────────────────────────────────── */
+async function saveCasters() {
+    try {
+        var r = await fetch(BASE + '/api/casters', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                caster1_name: document.getElementById('caster1Name').value,
+                caster1_social: document.getElementById('caster1Social').value,
+                caster2_name: document.getElementById('caster2Name').value,
+                caster2_social: document.getElementById('caster2Social').value
+            })
+        });
+        var d = await r.json();
+        if (r.ok) { toast('✅', 'Casters sauvegardés', 's'); }
+        else { toast('❌', d.detail || 'Erreur', 'e'); }
+    } catch(e) { toast('❌', 'Erreur', 'e'); }
+}
+
+async function loadCasters() {
+    try {
+        var r = await fetch(BASE + '/api/casters');
+        var d = await r.json();
+        if (r.ok) {
+            document.getElementById('caster1Name').value = d.caster1_name || '';
+            document.getElementById('caster1Social').value = d.caster1_social || '';
+            document.getElementById('caster2Name').value = d.caster2_name || '';
+            document.getElementById('caster2Social').value = d.caster2_social || '';
+        }
+    } catch(e) {}
 }
 
 /* ── WebSocket ───────────────────────────────────────────────────── */
@@ -833,6 +982,7 @@ document.getElementById('matchCont').addEventListener('click', function(e) {
 loadLang();
 loadGames();
 connectDashboardWs();
+loadCasters();
 document.getElementById('stpBtn').disabled = true;
 
 /* Restore saved config from localStorage */
