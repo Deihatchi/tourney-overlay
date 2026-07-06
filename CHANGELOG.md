@@ -2,6 +2,11 @@
 
 All notable changes to Tourney-Overlay will be documented in this format.
 
+## [1.2.7] - 2026-07-06
+
+### Changed
+- **All player names across all overlays** now use `Orbitron` font (bracket, score, recap, notification) — consistent e-sports look
+
 ## [1.2.6] - 2026-07-06
 
 ### Added
