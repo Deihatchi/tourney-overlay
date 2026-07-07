@@ -53,6 +53,8 @@
 
 ## 🚀 Quick Start
 
+> 📖 **Guide d'installation complet (novices)** : [GUIDE-INSTALLATION.md](GUIDE-INSTALLATION.md) — Docker, Docker Compose, configuration et OBS, étape par étape.
+
 ### 1. Get your Challonge API Key
 
 Go to **[challonge.com/settings/developer](https://challonge.com/settings/developer)** and copy your API Key.
