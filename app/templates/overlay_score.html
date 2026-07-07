@@ -172,7 +172,7 @@ body {
     font-weight: 700;
     font-size: 14px;
     letter-spacing: 2px;
-    color: var(--tertiary);
+    color: rgba(255,255,255,0.45);
     opacity: 0.9;
     margin-top: -4px;
     margin-bottom: 4px;
@@ -180,6 +180,10 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 320px;
+}
+
+.p-side.winner .p-tag {
+    color: var(--tertiary);
 }
 
 .p-side.p2 .p-name {
@@ -458,7 +462,6 @@ body {
 </style>
 </head>
 <body>
-<div class="corner-tag">SF OVERLAY</div>
 
 <div class="score-wrapper" id="scoreOverlay">
     <div class="bracket-reset-badge" id="bracketResetBadge" style="display:none">BRACKET RESET</div>
@@ -487,7 +490,7 @@ body {
             <div class="winner-badge">{{ winner_text or "WINNER" }}</div>
             <div class="p-tag" id="p2Tag" style="display:none"></div>
             <div class="p-name" id="p2Name">{{ player2_name or "JOUEUR 2" }}</div>
-            <div class="p-score-row" style="flex-direction:row-reverse;">
+            <div class="p-score-row" style="flex-direction:row;">
                 <div class="p-score" id="p2Score">{{ player2_score or "0" }}</div>
                 <div class="p-score-divider">—</div>
                 <div class="p-sub" id="p2Info">---</div>

@@ -10,7 +10,7 @@
     --primary: {{ primary|default("#ff4655") }};
     --secondary: {{ secondary|default("#00d4ff") }};
     --tertiary: {{ tertiary|default("#ffd700") }};
-    --offset: {{ offset_y|default("180") }}px;
+    --offset: {{ offset_y|default("117") }}px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -29,8 +29,8 @@ body {
     top: var(--offset);
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 16px;
+    gap: 14px;
+    padding: 12px 22px;
     background: rgba(10, 10, 20, 0.75);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -52,8 +52,8 @@ body {
 
 /* ---- AVATAR ---- */
 .p-avatar {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     border: 2px solid rgba(255,255,255,0.1);
     overflow: hidden;
@@ -69,30 +69,37 @@ body {
     object-fit: cover;
 }
 .p-avatar-ph {
-    font-size: 14px;
+    font-size: 17px;
     color: rgba(255,255,255,0.15);
 }
 
 /* ---- NAME ---- */
 .p-name {
     font-weight: 700;
-    font-size: 16px;
+    font-size: 18px;
     letter-spacing: 2px;
     text-transform: uppercase;
     color: #fff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 180px;
+    max-width: 200px;
     transition: color 0.3s, text-shadow 0.3s;
 }
 
-/* WINNER: only name changes color, not the block */
-.p-block.p1 .p-name.winner {
+/* ---- TEAM TAG (loser = light grey, winner = tertiary via .winner) ---- */
+.p-tag {
+    color: rgba(255,255,255,0.7);
+}
+
+/* WINNER: only name + tag change color, not the block */
+.p-block.p1 .p-name.winner,
+.p-block.p1 .p-tag.winner {
     color: var(--tertiary);
     text-shadow: 0 0 15px color-mix(in srgb, var(--tertiary) 50%, transparent);
 }
-.p-block.p2 .p-name.winner {
+.p-block.p2 .p-name.winner,
+.p-block.p2 .p-tag.winner {
     color: var(--tertiary);
     text-shadow: 0 0 15px color-mix(in srgb, var(--tertiary) 50%, transparent);
 }
@@ -100,7 +107,7 @@ body {
 /* ---- SCORE ---- */
 .p-score {
     font-weight: 900;
-    font-size: 28px;
+    font-size: 32px;
     line-height: 1;
     color: #fff;
     text-shadow: 0 0 12px color-mix(in srgb, var(--primary) 40%, transparent);
@@ -158,9 +165,9 @@ body {
 
 <!-- Player 1 Block -->
 <div class="p-block p1" id="p1Block" style="animation:slideLeft 0.6s cubic-bezier(0.16,1,0.3,1) forwards;">
-    <div class="p-tag" id="p1Tag" style="display:none;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;color:var(--tertiary);margin-bottom:2px"></div>
     <div class="p-avatar" id="p1Avatar"><div class="p-avatar-ph">?</div></div>
     <div>
+        <div class="p-tag" id="p1Tag" style="display:none;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;margin-bottom:2px"></div>
         <div class="p-name" id="p1Name">JOUEUR 1</div>
         <div class="p-sub" id="p1Info">---</div>
     </div>
@@ -174,10 +181,10 @@ body {
 <div class="p-block p2" id="p2Block" style="animation:slideRight 0.6s cubic-bezier(0.16,1,0.3,1) forwards;">
     <div class="p-score" id="p2Score">0</div>
     <div style="text-align:right">
+        <div class="p-tag" id="p2Tag" style="display:none;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;margin-bottom:2px"></div>
         <div class="p-name" id="p2Name">JOUEUR 2</div>
         <div class="p-sub" id="p2Info">---</div>
     </div>
-    <div class="p-tag" id="p2Tag" style="display:none;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;color:var(--tertiary);margin-bottom:2px"></div>
     <div class="p-avatar" id="p2Avatar"><div class="p-avatar-ph">?</div></div>
 </div>
 
@@ -242,6 +249,16 @@ body {
                 n1.textContent = m.player1.name || _t.p1;
                 n1.classList.toggle('winner', !!m.player1.is_winner);
             }
+            var t1 = document.getElementById('p1Tag');
+            if (t1) {
+                if (m.player1.team_tag) {
+                    t1.textContent = '[' + m.player1.team_tag + ']';
+                    t1.style.display = '';
+                } else {
+                    t1.style.display = 'none';
+                }
+                t1.classList.toggle('winner', !!m.player1.is_winner);
+            }
             flash(document.getElementById('p1Score'), m.player1.score);
             var i1 = document.getElementById('p1Info');
             if (i1) i1.textContent = m.player1.character || '---';
@@ -252,6 +269,16 @@ body {
             if (n2) {
                 n2.textContent = m.player2.name || _t.p2;
                 n2.classList.toggle('winner', !!m.player2.is_winner);
+            }
+            var t2 = document.getElementById('p2Tag');
+            if (t2) {
+                if (m.player2.team_tag) {
+                    t2.textContent = '[' + m.player2.team_tag + ']';
+                    t2.style.display = '';
+                } else {
+                    t2.style.display = 'none';
+                }
+                t2.classList.toggle('winner', !!m.player2.is_winner);
             }
             flash(document.getElementById('p2Score'), m.player2.score);
             var i2 = document.getElementById('p2Info');

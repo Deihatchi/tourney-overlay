@@ -166,11 +166,40 @@ body {
     font-size: 14px;
     color: #fff;
     font-family: 'Orbitron', monospace;
-    max-width: 120px;
+    max-width: 130px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-align: center;
+    line-height: 1.3;
 }
+.card-tag {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.card-player.card-winner .card-tag {
+    color: var(--tertiary);
+}
+.card-av {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.1);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-av img { width: 100%; height: 100%; object-fit: cover; }
+.card-av-ph { font-size: 11px; color: rgba(255,255,255,0.15); }
 .card-player.card-winner {
     color: var(--tertiary);
     text-shadow: 0 0 12px color-mix(in srgb, var(--tertiary) 60%, transparent);
@@ -490,10 +519,17 @@ body {
 
         var p1 = (m.player1 && m.player1.name) || 'TBD';
         var p1Tag = (m.player1 && m.player1.team_tag) || '';
+        var p1Win = !!(m.player1 && m.player1.is_winner);
         var p2 = (m.player2 && m.player2.name) || 'TBD';
         var p2Tag = (m.player2 && m.player2.team_tag) || '';
+        var p2Win = !!(m.player2 && m.player2.is_winner);
         var s1 = (m.player1 && m.player1.score != null) ? m.player1.score : '-';
         var s2 = (m.player2 && m.player2.score != null) ? m.player2.score : '-';
+
+        function avHtml(p) {
+            if (p && p.avatar_url) return '<div class="card-av"><img src="' + p.avatar_url + '" alt=""></div>';
+            return '<div class="card-av"><div class="card-av-ph">?</div></div>';
+        }
 
         var statusText;
         var winnerBadge = '';
@@ -510,14 +546,16 @@ body {
 
         var roundNum = Math.abs(m.round || 1);
 
-        var displayP1 = p1Tag ? '[' + p1Tag + '] ' + p1 : p1;
-        var displayP2 = p2Tag ? '[' + p2Tag + '] ' + p2 : p2;
+        var displayP1 = p1Tag ? '<span class="card-tag' + (p1Win ? ' card-winner' : '') + '">[' + p1Tag + ']</span>' + p1 : p1;
+        var displayP2 = p2Tag ? '<span class="card-tag' + (p2Win ? ' card-winner' : '') + '">[' + p2Tag + ']</span>' + p2 : p2;
         card.innerHTML =
             '<div class="card-round">' + _t.round + ' ' + roundNum + '</div>' +
             '<div class="card-players">' +
-                '<div class="card-player' + (m.player1 && m.player1.is_winner ? ' card-winner' : '') + '">\'' + displayP1.replace(/</g, '<') + '</div>' +
+                avHtml(m.player1) +
+                '<div class="card-player' + (p1Win ? ' card-winner' : '') + '">' + displayP1.replace(/</g, '<') + '</div>' +
                 '<div class="card-score">' + s1 + '–' + s2 + '</div>' +
-                '<div class="card-player' + (m.player2 && m.player2.is_winner ? ' card-winner' : '') + '">\'' + displayP2.replace(/</g, '<') + '</div>' +
+                '<div class="card-player' + (p2Win ? ' card-winner' : '') + '">' + displayP2.replace(/</g, '<') + '</div>' +
+                avHtml(m.player2) +
             '</div>' +
             '<div class="card-status">' + statusText + winnerBadge + '</div>';
 

@@ -2,7 +2,25 @@
 
 All notable changes to Tourney-Overlay will be documented in this format.
 
-## [1.2.8] - 2026-07-06
+## [1.2.9] - 2026-07-07
+
+### Added
+- **Roster module (Team Tags + Avatars)** — manage per-player team tags `[TAG]` and custom avatars from the dashboard (local files, take priority over Challonge Gravatar). Endpoints: `GET /api/tournaments/{id}/participants`, `POST /api/update_tag`, `POST /api/upload_avatar/{pseudo}`. Data stored in `players.json` + `avatars/` volume.
+- **Caster avatars** — upload caster 1/2 avatars from the dashboard (📷 button, auto-upload on select). Displayed in the Casters overlay. Endpoint `POST /api/upload_caster_avatar/{num}`.
+- **Casters overlay auto-hide** — caster cards appear on load/change then fade out after a configurable delay. Delay set in the dashboard ("Durée d'affichage des casters (s) — 0 = permanent", default 8s).
+- **Casters overlay layout** — each caster's info is now on its own side of the screen (left/right), not centered.
+- **Caster swap** — `/api/casters/swap` swaps names, socials, and avatars.
+
+### Changed
+- **Score Below overlay** — team tags now positioned correctly (tag above name for both players, mirror layout); team tag of the loser is light grey, winner is gold (tertiary); cards enlarged for readability; default vertical offset lowered to `offset_y=120`.
+- **Score overlay** — player 2 avatar now on the right of the score; team tag color follows winner (gold) / loser (neutral).
+- **Recap overlay** — player 2 avatar moved to the right of the team tag.
+- **Bracket overview** — team tag shown above the player name; colored by winner (gold) / loser (neutral); avatars displayed in match cards.
+
+### Fixed
+- **Team tags on player swap** — swapping players in a match now correctly swaps team tags together with names (previously the tag stayed positional and desynced from the player).
+- **Caster avatar persistence** — `python-multipart` added as dependency (required for `UploadFile` endpoints).
+
 
 ### Added
 - **Score Below overlay** (`/overlay/score-below`) — two independent player blocks positioned under health bars, with avatar + name + score + character, real-time WebSocket updates, winner name highlighted in gold

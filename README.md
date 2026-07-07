@@ -15,10 +15,11 @@
 
 | Overlay | URL | Size | Description |
 |---------|-----|------|-------------|
-| **Bracket** | `/overview?tournament_id=...` | 1920×1080 | Full tournament bracket, round filtering, winner highlight gold |
-| **Score** | `/overlay/score?match_id=...&tournament_id=...` | 1920×200 | Centered score bar with player names, avatars, character names |
-| **Score Below** | `/overlay/score-below?match_id=...&tournament_id=...` | 2×240 blocks | **New** — Two independent blocks (one per player) placed under health bars, ideal for SF6-style layouts |
-| **Recap** | `/overlay/recap?tournament_id=...` | 1920×1080 | **New** — All tournament matches in reverse round order, winner highlighted |
+| **Bracket** | `/overview?tournament_id=...` | 1920×1080 | Full tournament bracket, round filtering, winner highlight gold, team tags + avatars |
+| **Score** | `/overlay/score?match_id=...&tournament_id=...` | 1920×200 | Centered score bar with player names, avatars, characters, team tags |
+| **Score Below** | `/overlay/score-below?match_id=...&tournament_id=...&offset_y=120` | 2×240 blocks | Two independent blocks (one per player) under health bars, team tags, winner highlighted gold |
+| **Recap** | `/overlay/recap?tournament_id=...` | 1920×1080 | All tournament matches in reverse round order, winner highlighted, team tags + avatars |
+| **Casters** | `/overlay/casters` | 1920×1080 | Caster info on left/right sides, avatars, **auto-hide after a configurable delay** |
 | **Notification** | `/overlay/notification` | 500×300 | Animated toast notifications for match start, score update, match complete, player qualified |
 
 ### Dashboard
@@ -29,6 +30,9 @@
 | **Game themes** | 24 pre-configured fighting game themes (SF6, Tekken 8, GG Strive, MK1, etc.) |
 | **Custom colors** | Override primary/secondary/tertiary colors for any theme |
 | **Score editing** | Update match scores from dashboard — syncs back to Challonge in real time |
+| **Roster: Team Tags** | Set a `[TAG]` per player, persisted and shown in all overlays — follows the player even when swapped |
+| **Roster: Avatars** | Upload custom avatars per player (local files, priority over Challonge Gravatar) |
+| **Casters** | Set caster names/socials, **upload caster avatars**, swap casters, and set the auto-hide delay |
 | **Auto-generated URLs** | Copy-paste overlay URLs directly into OBS Browser Sources |
 | **FR / EN** | Full French and English interface |
 | **Real-time WebSocket** | Instant updates pushed to all overlays — no page refresh needed |
@@ -38,8 +42,10 @@
 - **Real-time WebSocket** — score changes, match completions pushed instantly to all overlays
 - **24 game themes** — each with custom `primary` / `secondary` / `tertiary` colors + unique CSS animations (slide, fade, zoom, glitch, fire, pulse, neon sweep, matrix)
 - **Winner detection** — gold highlight on winner name in bracket, score, recap, and notification overlays
-- **Player avatars** — Gravatar integration
+- **Player avatars** — custom local uploads (priority) + Gravatar fallback from Challonge
+- **Team tags** — per-player `[TAG]` shown in bracket, score, score-below and recap; colors follow the winner (gold) / loser (neutral); persisted and follows the player on swap
 - **Character display** — per-player character name shown in score overlays
+- **Caster avatars** — upload caster 1/2 avatars; caster cards auto-hide after a configurable delay
 - **Round filtering** — bracket shows only the current active round
 - **Completion tracking** — progress bar per tournament based on actual completed matches
 
@@ -118,13 +124,22 @@ services:
 | `POST` | `/api/configure` | Save API key + username |
 | `GET` | `/api/tournaments` | List tournaments with completion % |
 | `GET` | `/api/tournaments/{id}/matches` | List matches with participants |
+| `GET` | `/api/tournaments/{id}/participants` | List tournament participants (for Roster) |
 | `POST` | `/api/poll/start` | Start WebSocket polling for a tournament |
 | `POST` | `/api/poll/stop` | Stop polling |
 | `POST` | `/api/match/score` | Update match score on Challonge |
+| `POST` | `/api/match/swap` | Swap players in a match (names, scores, team tags) |
+| `POST` | `/api/update_tag` | Set a player's team tag `[TAG]` (persisted) |
+| `POST` | `/api/upload_avatar/{pseudo}` | Upload a custom player avatar (local, priority over Gravatar) |
+| `GET` | `/api/casters` | Get caster config (names, socials, avatars, auto-hide duration) |
+| `POST` | `/api/casters` | Save caster config |
+| `POST` | `/api/casters/swap` | Swap caster 1 ↔ 2 (names, socials, avatars) |
+| `POST` | `/api/upload_caster_avatar/{num}` | Upload a caster avatar (num = 1 or 2) |
 | `GET` | `/overlay/score` | Score overlay (centered bar) |
 | `GET` | `/overlay/score-below` | Score overlay (two blocks, under health bars) |
 | `GET` | `/overlay/notification` | Winner notification toast |
 | `GET` | `/overlay/recap` | All matches recap |
+| `GET` | `/overlay/casters` | Casters overlay (left/right, auto-hide) |
 | `GET` | `/overview` | Bracket overview |
 | `WS` | `/ws/dashboard` | Real-time dashboard updates |
 | `WS` | `/ws/overlay/{match_id}` | Real-time score overlay updates |
@@ -167,7 +182,8 @@ Or use the official GHCR image directly in Portainer:
 - Check **"Control audio via OBS"** and **"Shutdown when not visible"**
 - Append `?lang=en` for English interface
 - Customize colors with `&primary=...&secondary=...&tertiary=...`
-- Adjust Score Below position with `&offset_y=180` (pixels from top)
+- Adjust Score Below position with `&offset_y=120` (pixels from top)
+- Casters overlay: caster cards auto-hide after the delay set in the dashboard; `0` = stay visible
 
 ---
 
@@ -203,6 +219,7 @@ tourney-overlay/
         ├── overlay_score_below.html
         ├── overlay_notification.html
         ├── overlay_recap.html
+        ├── overlay_casters.html
         └── overview_overlay.html
 ```
 

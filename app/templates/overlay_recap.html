@@ -124,6 +124,9 @@ body {
 
 .match-p1, .match-p2 {
     flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-family: 'Orbitron', monospace;
     font-size: 13px;
     font-weight: 700;
@@ -135,6 +138,7 @@ body {
 
 .match-p2 {
     text-align: right;
+    flex-direction: row-reverse;
 }
 
 .match-p1.winner, .match-p2.winner {
@@ -144,6 +148,21 @@ body {
     border-radius: 4px;
     padding: 2px 8px;
 }
+
+.recap-av {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.1);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.recap-av img { width: 100%; height: 100%; object-fit: cover; }
+.recap-av-ph { font-size: 10px; color: rgba(255,255,255,0.15); }
 
 .match-vs {
     font-family: 'Orbitron', monospace;
@@ -282,6 +301,8 @@ body {
             ms.forEach(function(m) {
                 var p1 = (m.player1 && m.player1.name) || 'TBD';
                 var p2 = (m.player2 && m.player2.name) || 'TBD';
+                var p1Tag = (m.player1 && m.player1.team_tag) || '';
+                var p2Tag = (m.player2 && m.player2.team_tag) || '';
                 var s1 = (m.player1 && m.player1.score != null) ? m.player1.score : '-';
                 var s2 = (m.player2 && m.player2.score != null) ? m.player2.score : '-';
                 var isComplete = m.state === 'complete' || m.state === 'completed';
@@ -295,7 +316,8 @@ body {
 
                 var p1wrap = document.createElement('div');
                 p1wrap.className = 'match-p1' + (winnerId && m.player1 && m.player1.id === winnerId ? ' winner' : '');
-                p1wrap.textContent = p1;
+                var p1Text = (p1Tag ? '[' + p1Tag + '] ' : '') + p1;
+                p1wrap.innerHTML = '<div class="recap-av">' + (m.player1 && m.player1.avatar_url ? '<img src="' + m.player1.avatar_url + '" alt="">' : '<div class="recap-av-ph">?</div>') + '</div><span>' + p1Text + '</span>';
 
                 var scoreWrap = document.createElement('div');
                 scoreWrap.className = 'match-score' + (winnerId ? ' match-winner' : '');
@@ -310,7 +332,8 @@ body {
 
                 var p2wrap = document.createElement('div');
                 p2wrap.className = 'match-p2' + (winnerId && m.player2 && m.player2.id === winnerId ? ' winner' : '');
-                p2wrap.textContent = p2;
+                var p2Text = p2 + (p2Tag ? ' [' + p2Tag + ']' : '');
+                p2wrap.innerHTML = '<div class="recap-av">' + (m.player2 && m.player2.avatar_url ? '<img src="' + m.player2.avatar_url + '" alt="">' : '<div class="recap-av-ph">?</div>') + '</div><span>' + p2Text + '</span>';
 
                 var statusEl = document.createElement('div');
                 statusEl.className = 'match-status';

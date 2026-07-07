@@ -25,13 +25,23 @@ body {
 /* ====== CASTERS CONTAINER ====== */
 .casters-container {
     position: absolute;
-    top: 24px;
-    right: 40px;
+    bottom: 24px;
+    left: 0;
+    right: 0;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
+    padding: 0 40px;
+    gap: 12px;
     z-index: 100;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+}
+
+.casters-container.hidden {
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* ====== CASTER CARD ====== */
@@ -196,7 +206,7 @@ body {
     };
     var _t = i18n[lang] || i18n.fr;
     
-    function updateCaster(id, name, social) {
+    function updateCaster(id, name, social, avatarUrl) {
         var nameEl = document.getElementById(id + 'Name');
         var socialEl = document.getElementById(id + 'Social');
         var avatarEl = document.getElementById(id + 'Avatar');
@@ -216,21 +226,48 @@ body {
                 socialEl.innerHTML = '<span class="icon">@--</span>';
             }
         }
-        if (avatarEl && social && social.includes('@')) {
-            var emailHash = social.replace('@', '').split('')[0];
-            // For now, just show initials
-            avatarEl.innerHTML = '<span class="fallback">' + (name ? name.charAt(0).toUpperCase() : '?') + '</span>';
+        if (avatarEl) {
+            if (avatarUrl) {
+                avatarEl.innerHTML = '<img src="' + avatarUrl + '" alt="">';
+            } else {
+                var initial = name ? name.charAt(0).toUpperCase() : '?';
+                avatarEl.innerHTML = '<span class="fallback">' + initial + '</span>';
+            }
         }
     }
     
+    var _lastCasterSig = '';
     function loadCasters() {
         fetch('/api/casters')
             .then(function(r) { return r.json(); })
             .then(function(data) {
-                if (data.caster1_name) updateCaster('caster1', data.caster1_name, data.caster1_social);
-                if (data.caster2_name) updateCaster('caster2', data.caster2_name, data.caster2_social);
+                var sig = [
+                    data.caster1_name, data.caster1_social, data.caster1_avatar,
+                    data.caster2_name, data.caster2_social, data.caster2_avatar,
+                    data.display_duration
+                ].join('|');
+                // Only re-show / restart the hide timer when something actually changed.
+                // Otherwise the 5s poll would keep resetting the timer and cards would never hide.
+                if (sig === _lastCasterSig) return;
+                _lastCasterSig = sig;
+                if (data.caster1_name || data.caster1_social || data.caster1_avatar_url) updateCaster('caster1', data.caster1_name, data.caster1_social, data.caster1_avatar_url);
+                if (data.caster2_name || data.caster2_social || data.caster2_avatar_url) updateCaster('caster2', data.caster2_name, data.caster2_social, data.caster2_avatar_url);
+                scheduleHide(data.display_duration || 8);
             })
             .catch(function() {});
+    }
+
+    var _hideTimer = null;
+    function scheduleHide(seconds) {
+        var container = document.querySelector('.casters-container');
+        if (!container) return;
+        // show immediately
+        container.classList.remove('hidden');
+        if (_hideTimer) clearTimeout(_hideTimer);
+        if (!seconds || seconds <= 0) return;  // 0 = stay visible
+        _hideTimer = setTimeout(function() {
+            container.classList.add('hidden');
+        }, seconds * 1000);
     }
     
     loadCasters();

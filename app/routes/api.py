@@ -8,7 +8,7 @@ import json
 import os
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, File, UploadFile
 from fastapi.responses import JSONResponse
 
 from app.config import settings
@@ -160,7 +160,63 @@ async def get_matches(tournament_id: int) -> dict:
     return {"matches": [m.model_dump() for m in matches]}
 
 
-# ── Polling ──────────────────────────────────────────────────────────────────
+# ── Roster (participants + players.json) ─────────────────────────────────────
+@router.get("/tournaments/{tournament_id}/participants")
+async def get_participants(tournament_id: int) -> dict:
+    """List participants merged with local roster (team_tag + avatar)."""
+    api_key = tournament.get_api_key()
+    if not api_key:
+        raise HTTPException(status_code=400, detail="Configure d'abord ta clé API Challonge")
+
+    username = _current_config.username or settings.challonge_username
+    try:
+        parts = tournament.get_participants(api_key, tournament_id, username)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Erreur Challonge: {e}")
+    return {"participants": parts}
+
+
+@router.post("/update_tag")
+async def update_tag(payload: dict) -> dict:
+    """Update a player's team tag in players.json."""
+    pseudo = payload.get("pseudo")
+    team_tag = payload.get("team_tag", "")
+    if not pseudo:
+        raise HTTPException(status_code=400, detail="pseudo requis")
+    entry = tournament.set_player_tag(pseudo, team_tag)
+    return {"status": "ok", "pseudo": pseudo, "team_tag": entry.get("team_tag", "")}
+
+
+@router.post("/upload_avatar/{pseudo:path}")
+async def upload_avatar(pseudo: str, file: UploadFile = File(...)) -> dict:
+    """Save an avatar image to /static/avatars/ and update players.json."""
+    # Determine extension from uploaded filename
+    original = file.filename or ""
+    ext = os.path.splitext(original)[1].lower()
+    if ext not in (".png", ".jpg", ".jpeg", ".gif", ".webp"):
+        ext = ".png"
+    # Filesystem-safe filename (slug of pseudo) keeps players.json simple
+    filename = tournament._slugify(pseudo) + ext
+    avatars_dir = Path(STATIC_DIR) / "avatars"
+    avatars_dir.mkdir(parents=True, exist_ok=True)
+    dest = avatars_dir / filename
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="Fichier vide")
+    # Basic image size guard
+    if len(content) > 2 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Image trop lourde (max 2 Mo)")
+    with open(dest, "wb") as f:
+        f.write(content)
+    entry = tournament.set_player_avatar(pseudo, filename)
+    return {
+        "status": "ok",
+        "pseudo": pseudo,
+        "avatar_filename": entry.get("avatar_filename", ""),
+        "avatar_url": f"/static/avatars/{filename}",
+    }
+
+
 @router.post("/poll/start")
 async def start_poll(payload: dict) -> dict:
     """Start polling a tournament for match updates."""
@@ -207,6 +263,14 @@ async def update_score(update: ScoreUpdate) -> dict:
             update.winner_id,
         )
 
+        # Persist manual team tag overrides (survive Challonge polls)
+        tournament.set_team_tag_override(
+            update.tournament_id,
+            update.match_id,
+            update.player1_team_tag,
+            update.player2_team_tag,
+        )
+
         # Re-fetch and broadcast via WebSocket
         try:
             matches = tournament.fetch_matches(api_key, update.tournament_id)
@@ -240,7 +304,11 @@ async def swap_players(update: SwapPlayers) -> dict:
             matches = tournament.fetch_matches(api_key, update.tournament_id)
             for m in matches:
                 if m.id == update.match_id:
+                    # fetch_matches already reflects the Challonge swap (IDs swapped),
+                    # so player names, team tags and scores are in the correct order.
                     await manager.broadcast_match_update(m)
+                    if m.state.value == "completed":
+                        await manager.broadcast_notification(m)
                     break
         except Exception:
             pass
@@ -282,8 +350,13 @@ async def get_casters() -> dict:
     return {
         "caster1_name": _current_config.caster1_name,
         "caster1_social": _current_config.caster1_social,
+        "caster1_avatar": _current_config.caster1_avatar,
+        "caster1_avatar_url": (tournament._AVATAR_URL_PREFIX + _current_config.caster1_avatar) if _current_config.caster1_avatar else "",
         "caster2_name": _current_config.caster2_name,
         "caster2_social": _current_config.caster2_social,
+        "caster2_avatar": _current_config.caster2_avatar,
+        "caster2_avatar_url": (tournament._AVATAR_URL_PREFIX + _current_config.caster2_avatar) if _current_config.caster2_avatar else "",
+        "display_duration": _current_config.caster_display_duration,
     }
 
 
@@ -293,9 +366,52 @@ async def save_casters(payload: dict) -> dict:
     global _current_config
     _current_config.caster1_name = payload.get("caster1_name", "")
     _current_config.caster1_social = payload.get("caster1_social", "")
+    # avatar filenames are managed via /api/upload_caster_avatar; keep existing if not provided
+    if "caster1_avatar" in payload:
+        _current_config.caster1_avatar = payload.get("caster1_avatar", "")
+    if "caster2_avatar" in payload:
+        _current_config.caster2_avatar = payload.get("caster2_avatar", "")
     _current_config.caster2_name = payload.get("caster2_name", "")
     _current_config.caster2_social = payload.get("caster2_social", "")
+    if "caster_display_duration" in payload:
+        try:
+            _current_config.caster_display_duration = max(0, int(payload.get("caster_display_duration", 0)))
+        except (ValueError, TypeError):
+            pass
     return {"status": "ok", "message": "Casters sauvegardés"}
+
+
+@router.post("/upload_caster_avatar/{num}")
+async def upload_caster_avatar(num: int, file: UploadFile = File(...)) -> dict:
+    """Upload an avatar for caster 1 or 2 (num=1|2)."""
+    if num not in (1, 2):
+        raise HTTPException(status_code=400, detail="num must be 1 or 2")
+    original = file.filename or ""
+    ext = os.path.splitext(original)[1].lower()
+    if ext not in (".png", ".jpg", ".jpeg", ".gif", ".webp"):
+        ext = ".png"
+    filename = f"caster{num}{ext}"
+    avatars_dir = Path(STATIC_DIR) / "avatars"
+    avatars_dir.mkdir(parents=True, exist_ok=True)
+    dest = avatars_dir / filename
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="Fichier vide")
+    if len(content) > 2 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Image trop lourde (max 2 Mo)")
+    with open(dest, "wb") as f:
+        f.write(content)
+    global _current_config
+    if num == 1:
+        _current_config.caster1_avatar = filename
+    else:
+        _current_config.caster2_avatar = filename
+    return {
+        "status": "ok",
+        "num": num,
+        "avatar_filename": filename,
+        "avatar_url": f"/static/avatars/{filename}",
+    }
 
 
 # ── Logo ─────────────────────────────────────────────────────────────────────
@@ -442,3 +558,14 @@ TRANSLATIONS = {
 async def get_translations() -> dict:
     """Return i18n translations (FR/EN)."""
     return TRANSLATIONS
+
+
+# ── Caster Swap ───────────────────────────────────────────────────────────────
+@router.post("/casters/swap")
+async def swap_casters() -> dict:
+    """Swap caster 1 and caster 2."""
+    global _current_config
+    _current_config.caster1_name, _current_config.caster2_name = _current_config.caster2_name, _current_config.caster1_name
+    _current_config.caster1_social, _current_config.caster2_social = _current_config.caster2_social, _current_config.caster1_social
+    _current_config.caster1_avatar, _current_config.caster2_avatar = _current_config.caster2_avatar, _current_config.caster1_avatar
+    return {"status": "ok", "message": "Casteurs inversés"}

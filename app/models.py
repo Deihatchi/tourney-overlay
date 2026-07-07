@@ -322,8 +322,11 @@ class AppConfig(BaseModel):
     # Casters
     caster1_name: str = ""
     caster1_social: str = ""
+    caster1_avatar: str = ""
     caster2_name: str = ""
     caster2_social: str = ""
+    caster2_avatar: str = ""
+    caster_display_duration: int = 8  # seconds the caster cards stay visible before auto-hiding
 
 
 class OverlayConfig(BaseModel):
@@ -350,6 +353,8 @@ class ScoreUpdate(BaseModel):
     player2_score: int = 0
     winner_id: int = 0
     bracket_reset: bool = False
+    player1_team_tag: str | None = None
+    player2_team_tag: str | None = None
 
 
 class SwapPlayers(BaseModel):

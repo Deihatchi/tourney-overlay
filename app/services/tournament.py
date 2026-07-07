@@ -181,8 +181,112 @@ def _fetch_participants(api_key: str, tournament_id: int, username: str = "") ->
             team_tag, player_name = _parse_name_with_tag(full_name)
             p["parsed_name"] = player_name
             p["team_tag"] = team_tag
+            # Merge roster overrides (local players.json)
+            roster = _load_roster()
+            entry = roster.get(player_name)
+            if entry:
+                if entry.get("team_tag"):
+                    p["team_tag"] = entry["team_tag"]
+                if entry.get("avatar_filename"):
+                    p["avatar_url"] = _AVATAR_URL_PREFIX + entry["avatar_filename"]
+                else:
+                    p["avatar_url"] = _avatar(p)
+            else:
+                p["avatar_url"] = _avatar(p)
             participants[pid] = p
     return participants
+
+
+def _avatar(p: dict) -> str:
+    """Gravatar URL from Challonge email_hash, or empty string."""
+    email_hash = p.get("email_hash", "")
+    if email_hash:
+        return f"https://www.gravatar.com/avatar/{email_hash}?s=64&d=mp"
+    return ""
+
+
+def get_participants(api_key: str, tournament_id: int, username: str = "") -> list[dict]:
+    """Return tournament participants merged with local roster data.
+
+    Each entry: {id, name (parsed), team_tag, avatar_url}.
+    """
+    return list(_fetch_participants(api_key, tournament_id, username).values())
+
+
+# ── Roster (local players.json) ──────────────────────────────────────────────
+
+import os
+
+# players.json + avatars both live inside the avatars dir so a single Docker
+# volume mounted on /app/app/static/avatars keeps everything persistent and
+# serves avatars from the requested /static/avatars/ URL.
+_ROSTER_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+_AVATARS_DIR = os.path.join(_ROSTER_DIR, "avatars")
+_ROSTER_FILE = os.path.join(_AVATARS_DIR, "players.json")
+_AVATAR_URL_PREFIX = "/static/avatars/"
+
+
+def _slugify(name: str) -> str:
+    """Make a filesystem-safe name from a player pseudo."""
+    s = name.strip().lower()
+    s = "".join(c if (c.isalnum() or c in "-_") else "-" for c in s)
+    s = "-".join(part for part in s.split("-") if part)
+    return s or "player"
+
+
+def _load_roster() -> dict:
+    """Load players.json (keyed by pseudo) or return empty dict."""
+    try:
+        with open(_ROSTER_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict):
+            return data
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+    return {}
+
+
+def _save_roster(roster: dict) -> None:
+    """Persist players.json atomically."""
+    os.makedirs(_AVATARS_DIR, exist_ok=True)
+    tmp = _ROSTER_FILE + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(roster, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, _ROSTER_FILE)
+
+
+def get_roster() -> dict:
+    """Return the full roster dict (pseudo -> {team_tag, avatar_filename})."""
+    return _load_roster()
+
+
+def get_avatar_url(pseudo: str) -> str:
+    """Return the local avatar URL for a pseudo, or empty string if none."""
+    roster = _load_roster()
+    entry = roster.get(pseudo)
+    if entry and entry.get("avatar_filename"):
+        return _AVATAR_URL_PREFIX + entry["avatar_filename"]
+    return ""
+
+
+def set_player_tag(pseudo: str, team_tag: str) -> dict:
+    """Update (or create) a player's team tag in players.json."""
+    roster = _load_roster()
+    entry = roster.get(pseudo, {})
+    entry["team_tag"] = team_tag or ""
+    roster[pseudo] = entry
+    _save_roster(roster)
+    return entry
+
+
+def set_player_avatar(pseudo: str, filename: str) -> dict:
+    """Update a player's avatar filename in players.json."""
+    roster = _load_roster()
+    entry = roster.get(pseudo, {})
+    entry["avatar_filename"] = filename
+    roster[pseudo] = entry
+    _save_roster(roster)
+    return entry
 
 
 def fetch_matches(api_key: str, tournament_id: int, username: str = "") -> list[MatchInfo]:
@@ -209,13 +313,6 @@ def fetch_matches(api_key: str, tournament_id: int, username: str = "") -> list[
 
             p1_data = participants.get(p1_id, {})
             p2_data = participants.get(p2_id, {})
-
-            # Avatar via Gravatar (email_hash from Challonge API)
-            def _avatar(p: dict) -> str:
-                email_hash = p.get("email_hash", "")
-                if email_hash:
-                    return f"https://www.gravatar.com/avatar/{email_hash}?s=64&d=mp"
-                return ""
 
             # State mapping
             state_map = {
@@ -246,7 +343,7 @@ def fetch_matches(api_key: str, tournament_id: int, username: str = "") -> list[
                 team_tag=p1_data.get("team_tag", ""),
                 score=p1_score,
                 is_winner=m.get("winner_id") == p1_id,
-                avatar_url=_avatar(p1_data),
+                avatar_url=p1_data.get("avatar_url", "") or _avatar(p1_data),
             ) if p1_id else None
 
             player2 = PlayerInfo(
@@ -255,7 +352,7 @@ def fetch_matches(api_key: str, tournament_id: int, username: str = "") -> list[
                 team_tag=p2_data.get("team_tag", ""),
                 score=p2_score,
                 is_winner=m.get("winner_id") == p2_id,
-                avatar_url=_avatar(p2_data),
+                avatar_url=p2_data.get("avatar_url", "") or _avatar(p2_data),
             ) if p2_id else None
 
             matches.append(
@@ -270,7 +367,51 @@ def fetch_matches(api_key: str, tournament_id: int, username: str = "") -> list[
                     winner_id=m.get("winner_id"),
                 )
             )
+
+    # Apply manual team tag overrides (persisted user-entered tags)
+    for match in matches:
+        _apply_team_tag_override(match)
+
     return matches
+
+
+# ── Team Tag Overrides ────────────────────────────────────────────────────────
+
+# Manual team tag overrides keyed by match id. Lets users set a tag in the
+# dashboard modal that persists across Challonge polls (overrides parsed tag).
+_team_tag_overrides: dict[int, dict] = {}
+
+
+def set_team_tag_override(
+    tournament_id: int,
+    match_id: int,
+    p1_tag: str | None = None,
+    p2_tag: str | None = None,
+) -> None:
+    """Persist manual team tag overrides for a match.
+
+    A non-None value (including empty string) overrides the Challonge-parsed tag.
+    None means "keep the Challonge tag" (no override stored).
+    """
+    if p1_tag is None and p2_tag is None:
+        return
+    existing = _team_tag_overrides.get(match_id, {})
+    if p1_tag is not None:
+        existing["p1"] = p1_tag
+    if p2_tag is not None:
+        existing["p2"] = p2_tag
+    _team_tag_overrides[match_id] = existing
+
+
+def _apply_team_tag_override(match: "MatchInfo") -> None:
+    """Apply stored team tag overrides onto a match (in place)."""
+    override = _team_tag_overrides.get(match.id)
+    if not override:
+        return
+    if "p1" in override and match.player1:
+        match.player1.team_tag = override["p1"]
+    if "p2" in override and match.player2:
+        match.player2.team_tag = override["p2"]
 
 
 def update_match_score(

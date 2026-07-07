@@ -27,9 +27,10 @@ CID=$(curl -s -X POST \
     "Image": "tourney-overlay:latest",
     "HostConfig": {
       "PortBindings": {"8000/tcp": [{"HostPort": "8002"}]},
+      "Binds": ["tourney-overlay-data:/app/app/static/avatars"],
       "RestartPolicy": {"Name": "unless-stopped"}
     }
-  }' | python3 -c "import sys,json; print(json.load(sys.stdin).get('Id','NO_ID'))")
+  }' | python3 -c 'import sys,json; print(json.load(sys.stdin).get("Id","NO_ID"))')
 echo "   ID: ${CID:0:20}..."
 if [ "$CID" != "NO_ID" ]; then
   echo "▶️  Démarrage..."

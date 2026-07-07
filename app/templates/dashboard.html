@@ -2,6 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tournament Overlay — Config</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -62,6 +65,16 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 .mst{font-size:11px;color:var(--di);white-space:nowrap}
 .av{width:34px;height:34px;border-radius:50%;border:2px solid var(--sf3);object-fit:cover;flex-shrink:0}
 .av-ph{width:34px;height:34px;border-radius:50%;background:var(--sf2);border:2px solid var(--sf3);flex-shrink:0}
+.rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ri{display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:12px 14px}
+.ri .av,.ri .av-ph{width:46px;height:46px}
+.ri-body{flex:1;min-width:0}
+.ri-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-row{display:flex;gap:6px;margin-top:6px;align-items:center}
+.ri-tag{width:80px;background:var(--sf2);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:7px 10px;color:#fff;font-family:'Orbitron',monospace;font-size:12px;text-align:center}
+.ri-file{font-size:11px;color:var(--di)}
+.ri-up{display:none}
+.ri-cb{flex-shrink:0}
 .ul{display:flex;flex-direction:column;gap:10px}
 .ui{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.25);border-radius:8px;padding:10px 14px}
 .uc{flex:1;font-family:monospace;font-size:11px;color:var(--s);word-break:break-all;min-width:0;line-height:1.5}
@@ -180,11 +193,25 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 <div>
 <div class="g"><label id="lbl_caster1_name">Caster 1 — Nom</label><input type="text" id="caster1Name" placeholder="Nom/Pseudo"></div>
 <div class="g"><label id="lbl_caster1_social">Caster 1 — Réseau (X/Twitch)</label><input type="text" id="caster1Social" placeholder="@pseudo ou twitch.tv/nom"></div>
+<div class="g" style="display:flex;align-items:center;gap:8px">
+  <img id="caster1Prev" src="" alt="" style="width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);object-fit:cover;display:none">
+  <input type="file" id="caster1AvatarFile" accept="image/*" style="display:none" onchange="uploadCasterAvatar(1)">
+  <button class="btn btn-sm" type="button" onclick="document.getElementById('caster1AvatarFile').click()">📷</button>
+</div>
 </div>
 <div>
 <div class="g"><label id="lbl_caster2_name">Caster 2 — Nom</label><input type="text" id="caster2Name" placeholder="Nom/Pseudo"></div>
 <div class="g"><label id="lbl_caster2_social">Caster 2 — Réseau (X/Twitch)</label><input type="text" id="caster2Social" placeholder="@pseudo ou twitch.tv/nom"></div>
+<div class="g" style="display:flex;align-items:center;gap:8px">
+  <img id="caster2Prev" src="" alt="" style="width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);object-fit:cover;display:none">
+  <input type="file" id="caster2AvatarFile" accept="image/*" style="display:none" onchange="uploadCasterAvatar(2)">
+  <button class="btn btn-sm" type="button" onclick="document.getElementById('caster2AvatarFile').click()">📷</button>
 </div>
+</div>
+</div>
+<div class="g" style="margin-top:6px;max-width:220px">
+  <label id="lbl_caster_duration">Durée d'affichage des casters (s) — 0 = permanent</label>
+  <input type="number" id="casterDuration" min="0" max="120" value="8" placeholder="8">
 </div>
 <div style="margin-top:10px">
 <button class="btn btn-p" onclick="saveCasters()"> 💾 Sauvegarder les casters</button>
@@ -195,6 +222,12 @@ input:focus,select:focus{border-color:var(--p);box-shadow:0 0 20px rgba(255,70,8
 <div class="card full" style="margin-top:20px">
 <div class="card-title" id="lbl_matches">Matchs</div>
 <div class="ml" id="matchCont"><div class="em" id="lbl_nomatch">Sélectionne un tournoi</div></div>
+</div>
+
+<!-- ROW 6b: Roster (Team Tags & Avatars) -->
+<div class="card full" style="margin-top:20px">
+<div class="card-title">🏷️ Roster — Team Tags & Avatars</div>
+<div id="rosterCont"><div class="em">Sélectionne un tournoi pour charger le roster</div></div>
 </div>
 
 <!-- ROW 6: Overlay URLs -->
@@ -551,6 +584,103 @@ async function selectTourney(id) {
         });
         document.getElementById('polBtn').disabled = false;
     } catch(e) { mc.innerHTML = '<div class="em" style="color:var(--p)">' + e.message + '</div>'; }
+    loadRoster(id);
+}
+
+/* ── Roster ──────────────────────────────────────────────────────── */
+async function loadRoster(id) {
+    var rc = document.getElementById('rosterCont');
+    rc.innerHTML = '<div class="em"><span class="sp"></span></div>';
+    try {
+        var r = await fetch(BASE + '/api/tournaments/' + id + '/participants');
+        var d = await r.json();
+        if (!r.ok) throw new Error(d.detail);
+        var list = d.participants || [];
+        if (!list.length) { rc.innerHTML = '<div class="em">Aucun participant</div>'; return; }
+        var grid = document.createElement('div');
+        grid.className = 'rg';
+        list.forEach(function(p) {
+            var name = p.name || ('Player ' + p.id);
+            var tag = p.team_tag || '';
+            var av = p.avatar_url || '';
+            var avHtml = av ? '<img src="' + av + '?t=' + Date.now() + '" class="av">' : '<div class="av-ph"></div>';
+            var fileId = 'file_' + p.id;
+            var row = document.createElement('div');
+            row.className = 'ri';
+            row.innerHTML =
+                avHtml +
+                '<div class="ri-body">' +
+                    '<div class="ri-name" title="' + name.replace(/"/g, '&quot;') + '">' + name + '</div>' +
+                    '<div class="ri-row">' +
+                        '<input class="ri-tag" data-pseudo="' + name.replace(/"/g, '&quot;') + '" value="' + tag.replace(/"/g, '&quot;') + '" placeholder="TAG" maxlength="6">' +
+                        '<button class="btn btn-s btn-sm" onclick="saveTag(this)">💾</button>' +
+                    '</div>' +
+                    '<div class="ri-row">' +
+                        '<span class="ri-file" id="f_' + p.id + '">' + (av ? '🖼️ ' + av.split('/').pop() : 'Aucun avatar') + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="ri-cb">' +
+                    '<input type="file" id="' + fileId + '" accept="image/*" class="ri-up" onchange="uploadAvatar(' + p.id + ', this)">' +
+                    '<button class="btn btn-p btn-sm" onclick="document.getElementById(\'' + fileId + '\').click()">📷</button>' +
+                '</div>';
+            grid.appendChild(row);
+        });
+        rc.innerHTML = '';
+        rc.appendChild(grid);
+    } catch(e) { rc.innerHTML = '<div class="em" style="color:var(--p)">' + e.message + '</div>'; }
+}
+
+async function saveTag(btn) {
+    var input = btn.previousElementSibling;
+    var pseudo = input.dataset.pseudo;
+    var tag = input.value;
+    btn.disabled = true;
+    var old = btn.innerHTML;
+    btn.innerHTML = '…';
+    try {
+        var r = await fetch(BASE + '/api/update_tag', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({pseudo: pseudo, team_tag: tag})
+        });
+        var d = await r.json();
+        if (!r.ok) throw new Error(d.detail);
+        toast('🏷️', 'Tag ' + tag + ' sauvegardé pour ' + pseudo, 's');
+    } catch(e) { toast('❌', e.message, 'e'); }
+    btn.disabled = false;
+    btn.innerHTML = old;
+}
+
+async function uploadAvatar(pid, input) {
+    var file = input.files[0];
+    if (!file) return;
+    var btn = input.nextElementSibling;
+    btn.disabled = true;
+    try {
+        var fd = new FormData();
+        fd.append('file', file);
+        // Resolve pseudo from the matching tag input
+        var row = input.closest('.ri');
+        var pseudo = row.querySelector('.ri-tag').dataset.pseudo;
+        var r = await fetch(BASE + '/api/upload_avatar/' + encodeURIComponent(pseudo), {
+            method: 'POST',
+            body: fd
+        });
+        var d = await r.json();
+        if (!r.ok) throw new Error(d.detail);
+        var lbl = document.getElementById('f_' + pid);
+        if (lbl) lbl.innerHTML = '🖼️ ' + d.avatar_filename;
+        var imgEl = row.querySelector('.av, .av-ph');
+        if (imgEl) {
+            var newImg = document.createElement('img');
+            newImg.src = d.avatar_url + '?t=' + Date.now();
+            newImg.className = 'av';
+            imgEl.replaceWith(newImg);
+        }
+        toast('📷', 'Avatar uploadé pour ' + pseudo, 's');
+    } catch(e) { toast('❌', e.message, 'e'); }
+    btn.disabled = false;
+    input.value = '';
 }
 
 /* ── Select Match ────────────────────────────────────────────────── */
@@ -599,7 +729,7 @@ function updateUrls() {
         var scoreBelowUrl = proto + '//' + host + '/overlay/score-below?game=' + game +
                 '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
                 '&animation=' + a + '&match_id=' + mid + '&tournament_id=' + tid +
-                '&lang=' + encodeURIComponent(lang) + '&offset_y=180';
+                '&lang=' + encodeURIComponent(lang) + '&offset_y=120';
     var castersUrl = proto + '//' + host + '/overlay/casters?game=' + game +
         '&primary=' + p + '&secondary=' + s + '&tertiary=' + t2 +
         '&animation=' + a + '&lang=' + encodeURIComponent(lang);
@@ -636,6 +766,7 @@ function updateUrls() {
                             '<div class="ub">' +
                                 '<button class="btn btn-p btn-sm preview-btn" data-w="500" data-h="300">▶</button>' +
                                 '<button class="btn btn-s btn-sm copy-btn">📋</button>' +
+                                '<button class="btn btn-p btn-sm swap-btn" onclick="swapCasters()">↔️</button>' +
                             '</div></div>' +
                         '<div class="ol"><span class="ol-lbl">' + t('notification_overlay') + '</span></div>' +
                         '<div class="ui"><span class="uc" id="noUrl">' + notifUrl + '</span>' +
@@ -776,6 +907,8 @@ async function submitScore() {
     var s2 = parseInt(document.getElementById('sc2').value) || 0;
     var body = { match_id: editMid, tournament_id: selTourney, player1_score: s1, player2_score: s2 };
     if (editWin) body.winner_id = editWin;
+    body.player1_team_tag = document.getElementById('p1Tag').value;
+    body.player2_team_tag = document.getElementById('p2Tag').value;
     document.getElementById('scoreFb').textContent = '\u23F3';
     try {
         var r = await fetch(BASE + '/api/match/score', {
@@ -824,7 +957,7 @@ async function swapPlayers() {
             var activeTourney = document.querySelector('.ti.a');
             if (activeTourney) selectTourney(parseInt(activeTourney.dataset.id));
         } else { toast('❌', d.detail || 'Erreur', 'e'); }
-    } catch(e) { toast('❌', 'Erreur réseau', ' + e.message, 'e'); }
+    } catch(e) { toast('❌', 'Erreur réseau: ' + e.message, 'e'); }
 }
 
 /* ── Bracket Reset ────────────────────────────────────────────────── */
@@ -849,6 +982,22 @@ async function resetBracket() {
 }
 
 /* ── Casters ──────────────────────────────────────────────────────── */
+async function uploadCasterAvatar(num) {
+    var input = document.getElementById('caster' + num + 'AvatarFile');
+    if (!input || !input.files || !input.files[0]) { toast('❌', 'Choisir une image', 'e'); return; }
+    try {
+        var fd = new FormData();
+        fd.append('file', input.files[0]);
+        var r = await fetch(BASE + '/api/upload_caster_avatar/' + num, { method: 'POST', body: fd });
+        var d = await r.json();
+        if (r.ok) {
+            toast('✅', 'Avatar caster ' + num + ' uploadé', 's');
+            var prev = document.getElementById('caster' + num + 'Prev');
+            if (prev) { prev.src = d.avatar_url; prev.style.display = ''; }
+        } else { toast('❌', d.detail || 'Erreur', 'e'); }
+    } catch(e) { toast('❌', 'Erreur réseau', 'e'); }
+}
+
 async function saveCasters() {
     try {
         var r = await fetch(BASE + '/api/casters', {
@@ -858,7 +1007,8 @@ async function saveCasters() {
                 caster1_name: document.getElementById('caster1Name').value,
                 caster1_social: document.getElementById('caster1Social').value,
                 caster2_name: document.getElementById('caster2Name').value,
-                caster2_social: document.getElementById('caster2Social').value
+                caster2_social: document.getElementById('caster2Social').value,
+                caster_display_duration: parseInt(document.getElementById('casterDuration').value || '8', 10)
             })
         });
         var d = await r.json();
@@ -876,6 +1026,9 @@ async function loadCasters() {
             document.getElementById('caster1Social').value = d.caster1_social || '';
             document.getElementById('caster2Name').value = d.caster2_name || '';
             document.getElementById('caster2Social').value = d.caster2_social || '';
+            if (typeof d.display_duration !== 'undefined') document.getElementById('casterDuration').value = d.display_duration;
+            if (d.caster1_avatar_url) { var p1 = document.getElementById('caster1Prev'); p1.src = d.caster1_avatar_url; p1.style.display = ''; }
+            if (d.caster2_avatar_url) { var p2 = document.getElementById('caster2Prev'); p2.src = d.caster2_avatar_url; p2.style.display = ''; }
         }
     } catch(e) {}
 }
@@ -1031,6 +1184,33 @@ fetch(BASE + '/api/status').then(function(r) { return r.json(); }).then(function
 setInterval(function() {
     if (dashboardWs && dashboardWs.readyState === 1) dashboardWs.send('ping');
 }, 30000);
+
+function swapCasters() {
+    var name1 = document.getElementById('caster1Name');
+    var soc1 = document.getElementById('caster1Social');
+    var name2 = document.getElementById('caster2Name');
+    var soc2 = document.getElementById('caster2Social');
+    
+    var tempName = name1.value;
+    var tempSoc = soc1.value;
+    name1.value = name2.value;
+    soc1.value = soc2.value;
+    name2.value = tempName;
+    soc2.value = tempSoc;
+    
+    fetch(BASE + '/api/casters/swap', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            caster1_name: name1.value,
+            caster1_social: soc1.value,
+            caster2_name: name2.value,
+            caster2_social: soc2.value
+        })
+    }).then(r => r.json()).then(d => {
+        if (d.status === 'ok') toast('✅', 'Casteurs inversés', 's');
+    });
+}
 </script>
 </body>
 </html>

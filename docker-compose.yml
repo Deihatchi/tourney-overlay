@@ -4,4 +4,9 @@ services:
     container_name: tourney-overlay
     ports:
       - "8002:8000"
+    volumes:
+      - tourney-overlay-data:/app/app/static/avatars
     restart: unless-stopped
+
+volumes:
+  tourney-overlay-data:
